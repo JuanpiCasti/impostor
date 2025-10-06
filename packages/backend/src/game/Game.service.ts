@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import { Player } from "../domain/Player"
+import { Player } from "../player/Player"
 import { GameIdentifier } from "./Game"
 import { GameRepository } from "./Game.repository"
 

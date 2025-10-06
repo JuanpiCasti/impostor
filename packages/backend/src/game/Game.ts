@@ -1,4 +1,4 @@
-import { Player, PlayerIdentifier } from "../domain/Player"
+import { Player, PlayerIdentifier } from "../player/Player"
 
 export type GameIdentifier = string
 
