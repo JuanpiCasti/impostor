@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto"
+
 import { Player } from "../player/Player"
+
 import { GameIdentifier } from "./Game"
 import { GameRepository } from "./Game.repository"
 
@@ -7,9 +9,9 @@ export interface GameService {
   joinGame: (id: GameIdentifier, playerName: string) => void
 }
 
-export function GameService(gameRepository: GameRepository) {
+export function createGameService(gameRepository: GameRepository) {
   return {
-    joinGame: async function (id: GameIdentifier, playerName: string) {
+    joinGame: async (id: GameIdentifier, playerName: string) => {
       const player: Player = {
         name: playerName,
         id: randomUUID(),

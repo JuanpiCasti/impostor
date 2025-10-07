@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 
-import { Category } from "../domain/Category"
-import { Word } from "../domain/Word"
+import { Category } from "../category/Category"
+import { Word } from "../category/Word"
 
 import { Game, GameIdentifier } from "./Game"
 
