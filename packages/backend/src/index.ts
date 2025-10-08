@@ -2,6 +2,14 @@ import "dotenv/config"
 import { Server } from "socket.io"
 import express from "express"
 import { createServer } from "node:http"
+import { MemoryGameRepository } from "./game/Game.repository"
+import { createGameService } from "./game/Game.service"
+import {
+  registerCreateGameHandler,
+  registerGameSocketHandlers,
+} from "./game/Game.handler"
+import { createGameNotifier as GameNotifier } from "./game/Game.notifier"
+import { MemoryPlayerProvider } from "./player/Player.provider"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -17,12 +25,22 @@ const io = new Server(httpServer, {
   },
 })
 
+const playerProvider = MemoryPlayerProvider()
+const gameRepo = MemoryGameRepository()
+const gameNotifier = GameNotifier(io, playerProvider)
+const gameService = createGameService(gameRepo, gameNotifier)
+
 io.on("connection", (socket) => {
-  console.log("id de cliente:", socket.id)
+  registerGameSocketHandlers(io, socket, gameService, playerProvider)
 
   socket.on("health", (_data) => {
     socket.emit("health", { status: "ok" })
   })
 })
 
-httpServer.listen(port)
+app.use(express.json())
+registerCreateGameHandler(app, gameService)
+
+httpServer.listen(port, () => {
+  console.log("Server listening on port", port)
+})
