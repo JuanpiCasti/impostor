@@ -1,13 +1,9 @@
-import { Category } from "../category/Category"
 import { Word } from "../category/Word"
 
 import { Game, GameIdentifier, GameStatus } from "./Game"
 
-const categories = new Map<Category, Word[]>()
-categories.set("football", ["messi", "cr7", "modric"])
-
 export interface GameRepository {
-  createGame: (category: Category, maxPlayer: number) => Promise<string>
+  createGame: (word: Word, maxPlayers: number) => Promise<string>
   getGame: (id: GameIdentifier) => Promise<Game>
 }
 
@@ -22,15 +18,7 @@ export function MemoryGameRepository() {
       }
       return game
     },
-    createGame: async function (category: Category, maxPlayers: number) {
-      const categoryWords = categories.get(category) ?? []
-
-      if (categoryWords.length == 0) {
-        throw new Error("invalid category")
-      }
-      const word =
-        categoryWords[Math.floor(Math.random() * categoryWords.length)]
-
+    createGame: async function (word: Word, maxPlayers: number) {
       const gameId = generateRandomString(6)
       const game: Game = {
         gameId: gameId,
@@ -47,7 +35,7 @@ export function MemoryGameRepository() {
   }
 }
 
-function generateRandomString(length: number = 6) {
+export function generateRandomString(length: number = 6) {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789"
   let result = ""
   const charactersLength = characters.length

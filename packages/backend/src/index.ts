@@ -11,6 +11,8 @@ import {
 import { createGameNotifier as GameNotifier } from "./game/Game.notifier"
 import { MemoryPlayerProvider } from "./player/Player.provider"
 import { createImpostorStrategyFactory } from "./player/impostor/ImpostorStrategyFactory"
+import { createLogger } from "./logger/Logger"
+import { MemoryWordProvider } from "./category/Word.provider"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -26,7 +28,9 @@ const io = new Server(httpServer, {
   },
 })
 
+const logger = createLogger()
 const playerProvider = MemoryPlayerProvider()
+const wordProvider = MemoryWordProvider()
 const gameRepo = MemoryGameRepository()
 const gameNotifier = GameNotifier(io, playerProvider)
 const impostorStrategyFactory = createImpostorStrategyFactory()
@@ -34,6 +38,7 @@ const gameService = createGameService(
   gameRepo,
   gameNotifier,
   impostorStrategyFactory,
+  wordProvider,
 )
 
 io.on("connection", (socket) => {
@@ -45,8 +50,8 @@ io.on("connection", (socket) => {
 })
 
 app.use(express.json())
-registerCreateGameHandler(app, gameService)
+registerCreateGameHandler(app, gameService, logger)
 
 httpServer.listen(port, () => {
-  console.log("Server listening on port", port)
+  logger.info({ port }, "Server started")
 })

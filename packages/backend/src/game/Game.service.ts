@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto"
 
 import { Player } from "../player/Player"
+import { WordProvider } from "../category/Word.provider"
 
 import { GameRepository } from "./Game.repository"
-import { CreateGameRequest, JoinRequest } from "./Game.schemas"
+import { CreateGameRequest, JoinRequest } from "@impostor/schemas"
 import { GameNotifier, NotificationType } from "./Game.notifier"
 import {
   ImpostorStrategyFactory,
@@ -31,6 +32,7 @@ export function createGameService(
   gameRepository: GameRepository,
   gameNotifier: GameNotifier,
   impostorStrategyFactory: ImpostorStrategyFactory,
+  wordProvider: WordProvider,
 ): GameService {
   return {
     joinGame: async (joinRequest: JoinRequest) => {
@@ -77,8 +79,9 @@ export function createGameService(
         throw new Error("Invalid player count")
       }
 
+      const word = await wordProvider.getRandomWord(createGameRequest.category)
       const gameId = await gameRepository.createGame(
-        createGameRequest.category,
+        word,
         createGameRequest.maxPlayers,
       )
 

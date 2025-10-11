@@ -1,10 +1,11 @@
 import { Application, Request, Response } from "express"
 import { Server, Socket } from "socket.io"
 
-import { CreateGameRequestSchema, JoinRequest } from "./Game.schemas"
+import { CreateGameRequestSchema, JoinRequest } from "@impostor/schemas"
 import { GameService } from "./Game.service"
 import { PlayerProvider } from "../player/Player.provider"
 import { GameAlreadyStartedError, RoomFullError } from "./Game.error"
+import { Logger } from "../logger/Logger"
 
 export function registerGameSocketHandlers(
   io: Server,
@@ -40,6 +41,7 @@ export function registerGameSocketHandlers(
 export function registerCreateGameHandler(
   app: Application,
   gameService: GameService,
+  logger: Logger,
 ) {
   app.post("/game", async (req: Request, res: Response) => {
     const data = req.body
@@ -53,7 +55,7 @@ export function registerCreateGameHandler(
     try {
       gameId = await gameService.createGame(parsedData.data)
     } catch (err) {
-      console.log(err)
+      logger.error({ err }, "Failed to create game")
       res.status(400).json({ message: "error" })
       return
     }
