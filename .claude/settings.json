@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm run lint $CLAUDE_FILE_PATHS 1>&2 || (echo 'Linting failed. Claude must fix the reported errors.' 1>&2 && exit 2)"
+          },
+          {
+            "type": "command",
+            "command": "pnpm run format"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \\\"$CLAUDE_TOOL_FILE_PATH\\\" =~ \\\\.(js|ts|jsx|tsx)$ ]]; then npx prettier --write \\\"$CLAUDE_TOOL_FILE_PATH\\\" 2>/dev/null || true; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

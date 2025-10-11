@@ -1,6 +1,7 @@
 import { Server } from "socket.io"
 import { Game, GameIdentifier } from "./Game"
 import { PlayerProvider } from "../player/Player.provider"
+import { Role } from "../player/Role"
 
 export enum NotificationType {
   GAME_START,
@@ -17,17 +18,21 @@ export interface GameNotifier {
 export function createGameNotifier(io: Server, playerProvider: PlayerProvider) {
   return {
     notify: async (
-      roomId: GameIdentifier,
+      _roomId: GameIdentifier,
       type: NotificationType,
       game: Game,
     ) => {
-      if (type === NotificationType.GAME_START) {
-        io.to(roomId).emit("game-start", { yourWord: "gameStarting" })
-        game.players.forEach(async (p) => {
-          const conn = await playerProvider.getPlayerConnection(p.id)
-          const number = Math.floor(Math.random() * game.players.length)
-          io.to(conn).emit("HERE IS YOUR WORD", number)
-        })
+      switch (type) {
+        case NotificationType.GAME_START:
+          game.players.forEach(async (p) => {
+            const conn = await playerProvider.getPlayerConnection(p.id)
+
+            io.to(conn).emit("game-start", {
+              role: p.role,
+              word: p.role === Role.PLAYER ? game.word : Role.IMPOSTOR,
+            })
+          })
+          break
       }
     },
   }

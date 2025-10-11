@@ -10,6 +10,7 @@ import {
 } from "./game/Game.handler"
 import { createGameNotifier as GameNotifier } from "./game/Game.notifier"
 import { MemoryPlayerProvider } from "./player/Player.provider"
+import { createImpostorStrategyFactory } from "./player/impostor/ImpostorStrategyFactory"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -28,7 +29,12 @@ const io = new Server(httpServer, {
 const playerProvider = MemoryPlayerProvider()
 const gameRepo = MemoryGameRepository()
 const gameNotifier = GameNotifier(io, playerProvider)
-const gameService = createGameService(gameRepo, gameNotifier)
+const impostorStrategyFactory = createImpostorStrategyFactory()
+const gameService = createGameService(
+  gameRepo,
+  gameNotifier,
+  impostorStrategyFactory,
+)
 
 io.on("connection", (socket) => {
   registerGameSocketHandlers(io, socket, gameService, playerProvider)

@@ -4,6 +4,7 @@ import { Server, Socket } from "socket.io"
 import { CreateGameRequestSchema, JoinRequest } from "./Game.schemas"
 import { GameService } from "./Game.service"
 import { PlayerProvider } from "../player/Player.provider"
+import { GameAlreadyStartedError, RoomFullError } from "./Game.error"
 
 export function registerGameSocketHandlers(
   io: Server,
@@ -13,16 +14,26 @@ export function registerGameSocketHandlers(
 ) {
   socket.on("join-game", async (joinRequest: JoinRequest) => {
     const { roomId, playerName } = joinRequest
-    let player
+    let result
     try {
-      player = await gameService.joinGame(joinRequest)
-    } catch {
-      console.log("could not join game")
+      result = await gameService.joinGame(joinRequest)
+    } catch (err) {
+      if (
+        err instanceof RoomFullError ||
+        err instanceof GameAlreadyStartedError
+      ) {
+        socket.emit("game-error", { message: err.message })
+      }
       return
     }
+
     socket.join(roomId)
-    playerProvider.setPlayerConnection(player.id, socket.id)
+    playerProvider.setPlayerConnection(result.player.id, socket.id)
     io.to(roomId).emit("player-joined", { name: playerName })
+
+    if (result.shouldStart) {
+      await gameService.startGame(roomId)
+    }
   })
 }
 

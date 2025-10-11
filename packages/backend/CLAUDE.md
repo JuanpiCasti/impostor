@@ -68,18 +68,21 @@ export function MemoryGameRepository(): GameRepository {
 ### Layer Structure
 
 **Category** (`src/category/`):
+
 - `Category.ts` - Category type definition
 - `Word.ts` - Word type definition
 - `Category.repository.ts` - CategoryRepository interface and MemoryCategoryRepository implementation
 - `Category.service.ts` - CategoryService for managing categories
 
 **Player** (`src/player/`):
+
 - `Player.ts` - Player entity with identifier and name
 - `Player.repository.ts` - PlayerRepository interface and implementation
 - `Player.service.ts` - PlayerService for managing players
 - `Player.provider.ts` - Player provider utilities
 
 **Game** (`src/game/`):
+
 - `Game.ts` - Game entity with players, word, max players, and impostor
 - `Game.repository.ts` - GameRepository interface and MemoryGameRepository implementation (in-memory Map storage)
 - `Game.service.ts` - GameService interface and createGameService factory
@@ -87,6 +90,7 @@ export function MemoryGameRepository(): GameRepository {
 - `Game.handler.ts` - Express route handlers (createCreateGameHandler)
 
 **Entry point** (`src/index.ts`):
+
 - Initializes Express app and Socket.io server
 - Wires up dependencies (repositories → services → handlers)
 - Sets up REST endpoints and Socket.io event handlers
@@ -169,6 +173,7 @@ export function createCreateGameHandler(gameService: GameService) {
 - **Event names**: kebab-case - `join-game`, `start-game`, `leave-game`, `player-joined`
 - **Client → Server events**: Imperative verbs - `join-game`, `start-game`, `submit-answer`
 - **Server → Client events**: Past tense or state changes - `game-started`, `player-joined`, `word-assigned`
+- **Error handling**: All errors in WebSocket flows that must be communicated to the client MUST be published as an `"error"` event
 
 ### Code Style
 

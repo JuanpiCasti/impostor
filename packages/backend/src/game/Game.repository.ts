@@ -1,7 +1,7 @@
 import { Category } from "../category/Category"
 import { Word } from "../category/Word"
 
-import { Game, GameIdentifier } from "./Game"
+import { Game, GameIdentifier, GameStatus } from "./Game"
 
 const categories = new Map<Category, Word[]>()
 categories.set("football", ["messi", "cr7", "modric"])
@@ -32,11 +32,12 @@ export function MemoryGameRepository() {
         categoryWords[Math.floor(Math.random() * categoryWords.length)]
 
       const gameId = generateRandomString(6)
-      const game = {
+      const game: Game = {
         gameId: gameId,
         word: word,
         maxPlayers: maxPlayers,
         players: [],
+        status: GameStatus.CREATING,
       }
 
       games.set(gameId, game)
