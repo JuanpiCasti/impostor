@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Impostor-type online multiplayer game",
   "scripts": {
+    "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
     "format": "pnpm -r run format"
   },
