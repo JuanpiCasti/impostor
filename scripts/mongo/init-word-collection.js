@@ -1,15 +1,11 @@
 // 1. Switch to the target database
 use("impostor")
 
-// --- USER CREATION ---
-// Create a user with readWrite privileges specifically for the 'impostor' database.
-// NOTE: This user must be created by an authenticated root user (admin/123456).
-// In a production environment, use a strong password instead of 'impostor123'.
-
+// 2. Create application user for the impostor database
 try {
   db.createUser({
-    user: "userImpostor",
-    pwd: "impostor123", // Change this to a secure password in production!
+    user: process.env.MONGO_USER,
+    pwd: process.env.MONGO_PASSWORD,
     roles: [
       {
         role: "readWrite",
@@ -17,28 +13,33 @@ try {
       },
     ],
   })
-  print("✅ User 'userImpostor' created successfully.")
+  print(`✅ User '${process.env.MONGO_USER}' created for 'impostor' database.`)
 } catch (e) {
-  if (e.code === 51) {
-    print("ℹ️ User 'userImpostor' already exists. Skipping creation.")
+  if (e.code === 51003) {
+    print(`⚠️ User '${process.env.MONGO_USER}' already exists. Continuing.`)
   } else {
     print(`❌ Error creating user: ${e.message}`)
   }
 }
 
-// --- DATA INSERTION ---
-// Define initial word documents
+let categories = [{ name: "Football" }]
+
+try {
+  let result = db.Category.insertMany(categories, { ordered: false })
+} catch {
+  print("could not insert categories")
+}
+
+// 3. Insert initial word data
 let words = [
   {
     word: "Messi",
     category: "Football",
     // Add a timestamp for better data structure
-    createdAt: new Date(),
   },
   {
     word: "Modric",
     category: "Football",
-    createdAt: new Date(),
   },
   { word: "cr7", category: "Football" },
 ]

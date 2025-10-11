@@ -13,6 +13,7 @@ import { MemoryPlayerProvider } from "./player/Player.provider"
 import { createImpostorStrategyFactory } from "./player/impostor/ImpostorStrategyFactory"
 import { createLogger } from "./logger/Logger"
 import { MemoryWordProvider } from "./category/Word.provider"
+import { createDatabaseClient } from "./db/createClient"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -20,38 +21,73 @@ if (!allowedOrigins) {
   throw new Error("Allowed origins not specified")
 }
 
-const app = express()
-const httpServer = createServer(app)
-const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-  },
-})
+async function main() {
+  const logger = createLogger()
 
-const logger = createLogger()
-const playerProvider = MemoryPlayerProvider()
-const wordProvider = MemoryWordProvider()
-const gameRepo = MemoryGameRepository()
-const gameNotifier = GameNotifier(io, playerProvider)
-const impostorStrategyFactory = createImpostorStrategyFactory()
-const gameService = createGameService(
-  gameRepo,
-  gameNotifier,
-  impostorStrategyFactory,
-  wordProvider,
-)
+  const mongoHost = process.env.MONGO_HOST
+  const mongoPort = process.env.MONGO_PORT
+  const mongoUser = process.env.MONGO_USER
+  const mongoPassword = process.env.MONGO_PASSWORD
+  const mongoDatabase = process.env.MONGO_DATABASE
 
-io.on("connection", (socket) => {
-  registerGameSocketHandlers(io, socket, gameService, playerProvider)
+  if (
+    !mongoHost ||
+    !mongoPort ||
+    !mongoUser ||
+    !mongoPassword ||
+    !mongoDatabase
+  ) {
+    throw Error("Missing database variables.")
+  }
 
-  socket.on("health", (_data) => {
-    socket.emit("health", { status: "ok" })
+  const mongoClient = await createDatabaseClient(
+    mongoHost,
+    mongoPort,
+    mongoUser,
+    mongoPassword,
+    mongoDatabase,
+    logger,
+  )
+
+  console.log(mongoClient)
+
+  const app = express()
+  const httpServer = createServer(app)
+  const io = new Server(httpServer, {
+    cors: {
+      origin: allowedOrigins,
+    },
   })
-})
 
-app.use(express.json())
-registerCreateGameHandler(app, gameService, logger)
+  const playerProvider = MemoryPlayerProvider()
+  const wordProvider = MemoryWordProvider()
+  const gameRepo = MemoryGameRepository()
+  const gameNotifier = GameNotifier(io, playerProvider)
+  const impostorStrategyFactory = createImpostorStrategyFactory()
+  const gameService = createGameService(
+    gameRepo,
+    gameNotifier,
+    impostorStrategyFactory,
+    wordProvider,
+  )
 
-httpServer.listen(port, () => {
-  logger.info({ port }, "Server started")
+  io.on("connection", (socket) => {
+    registerGameSocketHandlers(io, socket, gameService, playerProvider)
+
+    socket.on("health", (_data) => {
+      socket.emit("health", { status: "ok" })
+    })
+  })
+
+  app.use(express.json())
+  registerCreateGameHandler(app, gameService, logger)
+
+  httpServer.listen(port, () => {
+    logger.info({ port }, "Server started")
+  })
+}
+
+main().catch((err) => {
+  console.error("Failed to start server:", err)
+  process.exit(1)
 })
