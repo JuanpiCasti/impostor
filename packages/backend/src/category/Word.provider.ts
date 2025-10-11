@@ -6,7 +6,7 @@ export interface WordProvider {
 }
 
 export function MemoryWordProvider(): WordProvider {
-  const categories = new Map<Category, Word[]>()
+  const categories = new Map<Category, string[]>()
   categories.set("football", ["messi", "cr7", "modric"])
 
   return {
@@ -17,10 +17,22 @@ export function MemoryWordProvider(): WordProvider {
         throw new Error("invalid category")
       }
 
-      const word =
+      const wordString =
         categoryWords[Math.floor(Math.random() * categoryWords.length)]
 
-      return word
+      return {
+        word: wordString,
+        category: category,
+      }
+    },
+  }
+}
+
+export function MongoWordProvider() {
+  return {
+    getRandomWord: async function (category: Category) {
+      console.log(category)
+      return { word: "asdf", category: "asdf" }
     },
   }
 }

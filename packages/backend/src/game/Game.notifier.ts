@@ -29,7 +29,7 @@ export function createGameNotifier(io: Server, playerProvider: PlayerProvider) {
 
             io.to(conn).emit("game-start", {
               role: p.role,
-              word: p.role === Role.PLAYER ? game.word : Role.IMPOSTOR,
+              word: p.role === Role.PLAYER ? game.word.word : Role.IMPOSTOR,
             })
           })
           break

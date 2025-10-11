@@ -1,0 +1,23 @@
+services:
+  mongo:
+    image: mongo:8.0.15-noble
+    container_name: mongo-word-db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    ports:
+      - "27017:27017"
+    networks:
+      - app_network
+    volumes:
+      - mongo-impostor:/data/db
+      - mongo-impostor-config:/data/configdb
+      - ./scripts/mongo:/docker-entrypoint-initdb.d
+  
+
+volumes:
+  mongo-impostor:
+  mongo-impostor-config:
+networks:
+  app_network:

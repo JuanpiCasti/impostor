@@ -5,6 +5,9 @@ import { defineConfig } from "eslint/config"
 import tseslint from "typescript-eslint"
 
 const baseConfig = defineConfig([
+  {
+    ignores: ["scripts/**"],
+  },
   eslint.configs.recommended,
   tseslint.configs.recommended,
   {
