@@ -19,4 +19,5 @@ export async function createDatabaseClient(
     }
     throw err
   }
+  return client.db(database)
 }

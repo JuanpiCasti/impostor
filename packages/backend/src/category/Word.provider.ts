@@ -1,3 +1,4 @@
+import { Collection } from "mongodb"
 import { Category } from "./Category"
 import { Word } from "./Word"
 
@@ -28,11 +29,26 @@ export function MemoryWordProvider(): WordProvider {
   }
 }
 
-export function MongoWordProvider() {
+export function MongoWordProvider(collection: Collection): WordProvider {
   return {
-    getRandomWord: async function (category: Category) {
-      console.log(category)
-      return { word: "asdf", category: "asdf" }
+    getRandomWord: async function (category: Category): Promise<Word> {
+      const results = await collection
+        .aggregate([
+          { $match: { category: category } },
+          { $sample: { size: 1 } },
+        ])
+        .toArray()
+
+      if (results.length === 0) {
+        throw new Error(`No words found for category: ${category}`)
+      }
+
+      const wordDoc = results[0]
+
+      return {
+        word: wordDoc.word,
+        category: wordDoc.category,
+      }
     },
   }
 }

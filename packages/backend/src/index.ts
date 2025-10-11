@@ -12,8 +12,8 @@ import { createGameNotifier as GameNotifier } from "./game/Game.notifier"
 import { MemoryPlayerProvider } from "./player/Player.provider"
 import { createImpostorStrategyFactory } from "./player/impostor/ImpostorStrategyFactory"
 import { createLogger } from "./logger/Logger"
-import { MemoryWordProvider } from "./category/Word.provider"
-import { createDatabaseClient } from "./db/createClient"
+import { MongoWordProvider } from "./category/Word.provider"
+import { createDatabaseClient } from "./db/createDatabaseClient"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -40,7 +40,7 @@ async function main() {
     throw Error("Missing database variables.")
   }
 
-  const mongoClient = await createDatabaseClient(
+  const impostorDatabase = await createDatabaseClient(
     mongoHost,
     mongoPort,
     mongoUser,
@@ -49,7 +49,6 @@ async function main() {
     logger,
   )
 
-  console.log(mongoClient)
 
   const app = express()
   const httpServer = createServer(app)
@@ -60,7 +59,7 @@ async function main() {
   })
 
   const playerProvider = MemoryPlayerProvider()
-  const wordProvider = MemoryWordProvider()
+  const wordProvider = MongoWordProvider(impostorDatabase.collection("Word"))
   const gameRepo = MemoryGameRepository()
   const gameNotifier = GameNotifier(io, playerProvider)
   const impostorStrategyFactory = createImpostorStrategyFactory()
