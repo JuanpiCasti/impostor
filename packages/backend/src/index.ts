@@ -8,12 +8,16 @@ import {
   registerCreateGameHandler,
   registerGameSocketHandlers,
 } from "./game/Game.handler"
-import { createGameNotifier as GameNotifier } from "./game/Game.notifier"
-import { MemoryPlayerProvider } from "./player/Player.provider"
+import { createGameNotifier } from "./game/Game.notifier"
 import { createImpostorStrategyFactory } from "./player/impostor/ImpostorStrategyFactory"
 import { createLogger } from "./logger/Logger"
 import { MongoWordProvider } from "./category/Word.provider"
 import { createDatabaseClient } from "./db/createDatabaseClient"
+import { MongoCategoryRepository } from "./category/Category.repository"
+import { createCategoryService } from "./category/Category.service"
+import { registerGetCategoriesHandler } from "./category/Category.handler"
+import { MemorySessionManager } from "./session/SessionManager"
+import { SocketIOPlayerNotificationService } from "./notification/PlayerNotificationService"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -49,7 +53,6 @@ async function main() {
     logger,
   )
 
-
   const app = express()
   const httpServer = createServer(app)
   const io = new Server(httpServer, {
@@ -58,20 +61,38 @@ async function main() {
     },
   })
 
-  const playerProvider = MemoryPlayerProvider()
-  const wordProvider = MongoWordProvider(impostorDatabase.collection("Word"))
-  const gameRepo = MemoryGameRepository()
-  const gameNotifier = GameNotifier(io, playerProvider)
-  const impostorStrategyFactory = createImpostorStrategyFactory()
-  const gameService = createGameService(
-    gameRepo,
-    gameNotifier,
-    impostorStrategyFactory,
-    wordProvider,
+  const sessionManager = MemorySessionManager()
+  const notificationService = SocketIOPlayerNotificationService(
+    io,
+    sessionManager,
   )
 
+  const wordProvider = MongoWordProvider(impostorDatabase.collection("Word"))
+  const categoryRepository = MongoCategoryRepository(
+    impostorDatabase.collection("Category"),
+  )
+  const gameRepository = MemoryGameRepository()
+
+  const impostorStrategyFactory = createImpostorStrategyFactory()
+  const gameService = createGameService(
+    gameRepository,
+    impostorStrategyFactory,
+    wordProvider,
+    logger,
+  )
+  const categoryService = createCategoryService(categoryRepository)
+
+  const gameNotifier = createGameNotifier(notificationService)
+
   io.on("connection", (socket) => {
-    registerGameSocketHandlers(io, socket, gameService, playerProvider)
+    registerGameSocketHandlers(
+      io,
+      socket,
+      gameService,
+      gameNotifier,
+      sessionManager,
+      logger,
+    )
 
     socket.on("health", (_data) => {
       socket.emit("health", { status: "ok" })
@@ -80,6 +101,7 @@ async function main() {
 
   app.use(express.json())
   registerCreateGameHandler(app, gameService, logger)
+  registerGetCategoriesHandler(app, categoryService, logger)
 
   httpServer.listen(port, () => {
     logger.info({ port }, "Server started")

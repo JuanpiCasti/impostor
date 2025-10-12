@@ -1,8 +1,10 @@
 import { Word } from "../category/Word"
 
 import { Game, GameIdentifier, GameStatus } from "./Game"
+import { GameNotFoundError } from "./Game.error"
 
 export interface GameRepository {
+  deleteGame(gameId: string): Promise<Game>
   createGame: (word: Word, maxPlayers: number) => Promise<string>
   getGame: (id: GameIdentifier) => Promise<Game>
 }
@@ -11,14 +13,14 @@ export function MemoryGameRepository() {
   const games = new Map<GameIdentifier, Game>()
 
   return {
-    getGame: async function (id: GameIdentifier) {
+    async getGame(id: GameIdentifier) {
       const game = games.get(id)
       if (!game) {
-        throw new Error("Game not found")
+        throw new GameNotFoundError("Game not found")
       }
       return game
     },
-    createGame: async function (word: Word, maxPlayers: number) {
+    async createGame(word: Word, maxPlayers: number) {
       const gameId = generateRandomString(6)
       const game: Game = {
         gameId: gameId,
@@ -31,6 +33,11 @@ export function MemoryGameRepository() {
       games.set(gameId, game)
 
       return gameId
+    },
+    async deleteGame(gameId: GameIdentifier) {
+      const game = this.getGame(gameId)
+      games.delete(gameId)
+      return game
     },
   }
 }

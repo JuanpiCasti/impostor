@@ -1,39 +1,33 @@
-import { Server } from "socket.io"
-import { Game, GameIdentifier } from "./Game"
-import { PlayerProvider } from "../player/Player.provider"
+import { Game } from "./Game"
 import { Role } from "../player/Role"
+import { PlayerNotificationService } from "../notification/PlayerNotificationService"
 
 export enum NotificationType {
-  GAME_START,
+  GAME_START = "game-start",
 }
 
 export interface GameNotifier {
-  notify: (
-    roomId: GameIdentifier,
-    type: NotificationType,
-    game: Game,
-  ) => Promise<void>
+  notifyGameStart(game: Game): Promise<void>
 }
 
-export function createGameNotifier(io: Server, playerProvider: PlayerProvider) {
+export function createGameNotifier(
+  notificationService: PlayerNotificationService,
+): GameNotifier {
   return {
-    notify: async (
-      _roomId: GameIdentifier,
-      type: NotificationType,
-      game: Game,
-    ) => {
-      switch (type) {
-        case NotificationType.GAME_START:
-          game.players.forEach(async (p) => {
-            const conn = await playerProvider.getPlayerConnection(p.id)
+    async notifyGameStart(game) {
+      await Promise.all(
+        game.players.map(async (player) => {
+          const isImpostor = player.role === Role.IMPOSTOR
 
-            io.to(conn).emit("game-start", {
-              role: p.role,
-              word: p.role === Role.PLAYER ? game.word.word : Role.IMPOSTOR,
-            })
+          await notificationService.notifyPlayer(player.id, {
+            type: NotificationType.GAME_START,
+            data: {
+              role: player.role,
+              word: isImpostor ? undefined : game.word.word,
+            },
           })
-          break
-      }
+        }),
+      )
     },
   }
 }

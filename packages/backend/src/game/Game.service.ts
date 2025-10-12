@@ -1,43 +1,44 @@
 import { randomUUID } from "node:crypto"
 
-import { Player } from "../player/Player"
+import { Player, PlayerIdentifier } from "../player/Player"
 import { WordProvider } from "../category/Word.provider"
 
 import { GameRepository } from "./Game.repository"
-import { CreateGameRequest, JoinRequest } from "@impostor/schemas"
-import { GameNotifier, NotificationType } from "./Game.notifier"
+import { CreateGameRequest } from "@impostor/schemas"
 import {
   ImpostorStrategyFactory,
   ImpostorStrategyType,
 } from "../player/impostor/ImpostorStrategyFactory"
-import { Game, GameStatus } from "./Game"
+import { Game, GameIdentifier, GameStatus } from "./Game"
 import { GameAlreadyStartedError, RoomFullError } from "./Game.error"
-
-export interface JoinGameResult {
-  player: Player
-  shouldStart: boolean
-}
+import { Logger } from "pino"
 
 export interface GameService {
-  joinGame: (joinRequest: JoinRequest) => Promise<JoinGameResult>
-  startGame: (roomId: string) => Promise<void>
+  joinGame: (gameId: GameIdentifier, playerName: string) => Promise<Player>
+  shouldStartGame: (gameId: GameIdentifier) => Promise<boolean>
+  startGame: (gameId: GameIdentifier) => Promise<void>
+  getGame: (gameId: GameIdentifier) => Promise<Game>
   createGame: (createGameRequest: CreateGameRequest) => Promise<string>
-}
-
-function shouldGameStart(game: Game): boolean {
-  return game.players.length === game.maxPlayers
+  leaveGame: (
+    playerId: PlayerIdentifier,
+    gameId: GameIdentifier,
+  ) => Promise<void>
+  leaveGames: (
+    playerId: PlayerIdentifier,
+    gameIds: GameIdentifier[],
+  ) => Promise<void>
+  deleteGame(gameId: GameIdentifier): Promise<Game>
 }
 
 export function createGameService(
   gameRepository: GameRepository,
-  gameNotifier: GameNotifier,
   impostorStrategyFactory: ImpostorStrategyFactory,
   wordProvider: WordProvider,
+  logger: Logger,
 ): GameService {
   return {
-    joinGame: async (joinRequest: JoinRequest) => {
-      const { roomId, playerName } = joinRequest
-      const game = await gameRepository.getGame(roomId)
+    joinGame: async (gameId: GameIdentifier, playerName: string) => {
+      const game = await gameRepository.getGame(gameId)
 
       if (game.status === GameStatus.STARTED) {
         throw new GameAlreadyStartedError(
@@ -56,21 +57,32 @@ export function createGameService(
 
       game.players.push(player)
 
-      const shouldStart = shouldGameStart(game)
-
-      return { player, shouldStart }
+      return player
     },
-    startGame: async (roomId: string) => {
-      const game = await gameRepository.getGame(roomId)
 
-      game.status = GameStatus.STARTED
+    shouldStartGame: async (gameId: GameIdentifier) => {
+      const game = await gameRepository.getGame(gameId)
+      return game.players.length === game.maxPlayers
+    },
+
+    startGame: async (gameId: GameIdentifier) => {
+      const game = await gameRepository.getGame(gameId)
+
+      if (game.status === GameStatus.STARTED) {
+        throw new GameAlreadyStartedError("Game already started")
+      }
+
       const strategy = impostorStrategyFactory.create(
         ImpostorStrategyType.RANDOM,
       )
       strategy.assignRoles(game.players)
-
-      await gameNotifier.notify(roomId, NotificationType.GAME_START, game)
+      game.status = GameStatus.STARTED
     },
+
+    getGame: async (gameId: GameIdentifier) => {
+      return await gameRepository.getGame(gameId)
+    },
+
     createGame: async (createGameRequest: CreateGameRequest) => {
       if (
         createGameRequest.maxPlayers < 3 ||
@@ -86,6 +98,31 @@ export function createGameService(
       )
 
       return gameId
+    },
+    async leaveGame(playerId: PlayerIdentifier, gameId: GameIdentifier) {
+      let game
+      try {
+        game = await gameRepository.getGame(gameId)
+      } catch (err) {
+        if (err instanceof Error) {
+          logger.error({ err }, "Could not find game to leave")
+        }
+        return
+      }
+      const players = game.players
+      const index = players.findIndex((p) => p.id == playerId)
+      if (index !== -1) {
+        players.splice(index, 1)
+      }
+      if (players.length <= 0) {
+        this.deleteGame(gameId)
+      }
+    },
+    async leaveGames(playerId: PlayerIdentifier, gameIds: GameIdentifier[]) {
+      await Promise.all(gameIds.map((g) => this.leaveGame(playerId, g)))
+    },
+    async deleteGame(gameId: GameIdentifier) {
+      return await gameRepository.deleteGame(gameId)
     },
   }
 }
