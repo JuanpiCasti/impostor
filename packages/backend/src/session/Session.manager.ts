@@ -10,9 +10,14 @@ export interface Session {
 export interface SessionManager {
   createSession(connectionId: string, playerId: PlayerIdentifier): void
 
+  getSessionByConnection(connectionId: string): Session | undefined
   getSessionByPlayer(playerId: PlayerIdentifier): Session | undefined
 
   addGameToSession(playerId: PlayerIdentifier, gameId: GameIdentifier): void
+  removeGameFromSession(
+    playerId: PlayerIdentifier,
+    gameId: GameIdentifier,
+  ): void
   destroySession(connectionId: string): Session | undefined
 }
 
@@ -31,6 +36,10 @@ export function MemorySessionManager(): SessionManager {
       byPlayer.set(playerId, connectionId)
     },
 
+    getSessionByConnection(connectionId) {
+      return byConnection.get(connectionId)
+    },
+
     getSessionByPlayer(playerId) {
       const connectionId = byPlayer.get(playerId)
       return connectionId ? byConnection.get(connectionId) : undefined
@@ -40,6 +49,13 @@ export function MemorySessionManager(): SessionManager {
       const session = this.getSessionByPlayer(playerId)
       if (session) {
         session.gameIds.add(gameId)
+      }
+    },
+
+    removeGameFromSession(playerId, gameId) {
+      const session = this.getSessionByPlayer(playerId)
+      if (session) {
+        session.gameIds.delete(gameId)
       }
     },
 

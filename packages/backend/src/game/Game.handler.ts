@@ -1,80 +1,46 @@
 import { Application, Request, Response } from "express"
-import { Server, Socket } from "socket.io"
+import { Socket } from "socket.io"
 
 import { CreateGameRequestSchema, JoinRequest } from "@impostor/schemas"
 import { GameService } from "./Game.service"
 import {
   GameAlreadyStartedError,
   GameNotFoundError,
+  InvalidJoinRequestException,
   RoomFullError,
 } from "./Game.error"
 import { Logger } from "../logger/Logger"
-import { SessionManager } from "../session/SessionManager"
-import { GameNotifier } from "./Game.notifier"
+import { GameController } from "./Game.controller"
 
 export function registerGameSocketHandlers(
-  io: Server,
   socket: Socket,
-  gameService: GameService,
-  gameNotifier: GameNotifier,
-  sessionManager: SessionManager,
+  gameController: GameController,
   logger: Logger,
 ) {
   socket.on("join-game", async (joinRequest: JoinRequest) => {
-    const { roomId, playerName } = joinRequest
-
-    let player
     try {
-      player = await gameService.joinGame(roomId, playerName)
+      await gameController.joinGame(socket, joinRequest)
     } catch (err) {
       if (
         err instanceof RoomFullError ||
         err instanceof GameAlreadyStartedError ||
-        err instanceof GameNotFoundError
+        err instanceof GameNotFoundError ||
+        err instanceof GameAlreadyStartedError ||
+        err instanceof RoomFullError ||
+        err instanceof InvalidJoinRequestException
       ) {
         socket.emit("game-error", { message: err.message })
         return
       }
-      logger.error({ err }, "error on game join")
-      return
-    }
-
-    sessionManager.createSession(socket.id, player.id)
-    sessionManager.addGameToSession(player.id, roomId)
-
-    socket.join(roomId)
-    io.to(roomId).emit("player-joined", { name: playerName })
-
-    let shouldStart
-    try {
-      shouldStart = await gameService.shouldStartGame(roomId)
-    } catch (err) {
-      logger.error({err}, "Could not determine if game should start")
-      socket.emit("game-error", {message: "Could not start game."})
-      return
-    }
-
-    if (shouldStart) {
-      try {
-        const game = await gameService.startGame(roomId)
-        await gameNotifier.notifyGameStart(game)
-      } catch (err) {
-        logger.error({ err }, "Error starting game")
-        io.to(roomId).emit("game-error", {
-          message: "Failed to start game",
-        })
-      }
+      socket.emit("game-error", { message: "Could not join game." })
     }
   })
 
   socket.on("disconnect", async () => {
     try {
-      const session = sessionManager.destroySession(socket.id)
-      if (session) {
-        gameService.leaveGames(session.playerId, Array.from(session.gameIds))
-      }
+      await gameController.leaveGame(socket)
     } catch (err) {
-      logger.error({ err }, "Error on disconnection routine.")
+      logger.error({ err }, "Error on disconnection routine")
     }
   })
 }

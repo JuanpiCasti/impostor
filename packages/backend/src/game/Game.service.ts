@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto"
 
 import { Player, PlayerIdentifier } from "../player/Player"
 import { WordProvider } from "../category/Word.provider"
@@ -12,9 +11,16 @@ import {
 import { Game, GameIdentifier, GameStatus } from "./Game"
 import { GameAlreadyStartedError, RoomFullError } from "./Game.error"
 import { Logger } from "pino"
+import { GameNotifier } from "./Game.notifier"
+
+export interface JoinGameResult {
+  player: Player
+  game: Game
+  gameStarted: boolean
+}
 
 export interface GameService {
-  joinGame: (gameId: GameIdentifier, playerName: string) => Promise<Player>
+  joinGame: (gameId: GameIdentifier, playerName: string, playerId: PlayerIdentifier) => Promise<void>
   shouldStartGame: (gameId: GameIdentifier) => Promise<boolean>
   startGame: (gameId: GameIdentifier) => Promise<Game>
   getGame: (gameId: GameIdentifier) => Promise<Game>
@@ -35,9 +41,10 @@ export function createGameService(
   impostorStrategyFactory: ImpostorStrategyFactory,
   wordProvider: WordProvider,
   logger: Logger,
+  gameNotifier: GameNotifier
 ): GameService {
   return {
-    async joinGame(gameId: GameIdentifier, playerName: string) {
+    async joinGame(gameId: GameIdentifier, playerName: string, playerId ) {
       const game = await gameRepository.getGame(gameId)
 
       if (game.status === GameStatus.STARTED) {
@@ -52,12 +59,22 @@ export function createGameService(
 
       const player: Player = {
         name: playerName,
-        id: randomUUID(),
+        id: playerId
       }
 
       game.players.push(player)
 
-      return player
+      await gameNotifier.notifyPlayerJoined(game, playerName)
+
+      if (game.players.length === game.maxPlayers) {
+        const strategy = impostorStrategyFactory.create(
+          ImpostorStrategyType.RANDOM,
+        )
+        strategy.assignRoles(game.players)
+        game.status = GameStatus.STARTED
+
+        await gameNotifier.notifyGameStart(game)
+      }
     },
 
     async shouldStartGame(gameId: GameIdentifier) {
@@ -117,8 +134,10 @@ export function createGameService(
       if (index !== -1) {
         players.splice(index, 1)
       }
+      gameNotifier.notifyLeftGame(game, playerId)
       if (players.length <= 0) {
         this.deleteGame(gameId)
+        return
       }
     },
 

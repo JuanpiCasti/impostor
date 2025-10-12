@@ -11,3 +11,7 @@ export const JoinRequestSchema = z.object({
   roomId: z.string().length(6),
 })
 export type JoinRequest = z.infer<typeof JoinRequestSchema>
+
+export type WordNotificationPayload =
+  | { role: "IMPOSTOR"; word: undefined }
+  | { role: "PLAYER"; word: string }

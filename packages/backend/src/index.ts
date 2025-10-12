@@ -2,6 +2,7 @@ import "dotenv/config"
 import { Server } from "socket.io"
 import express from "express"
 import { createServer } from "node:http"
+import { randomUUID } from "node:crypto"
 import { MemoryGameRepository } from "./game/Game.repository"
 import { createGameService } from "./game/Game.service"
 import {
@@ -16,8 +17,9 @@ import { createDatabaseClient } from "./db/createDatabaseClient"
 import { MongoCategoryRepository } from "./category/Category.repository"
 import { createCategoryService } from "./category/Category.service"
 import { registerGetCategoriesHandler } from "./category/Category.handler"
-import { MemorySessionManager } from "./session/SessionManager"
-import { SocketIOPlayerNotificationService } from "./notification/PlayerNotificationService"
+import { MemorySessionManager } from "./session/Session.manager"
+import { SocketIOPlayerNotificationService } from "./player/Player.notifier"
+import { GameController } from "./game/Game.controller"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -74,25 +76,24 @@ async function main() {
   const gameRepository = MemoryGameRepository()
 
   const impostorStrategyFactory = createImpostorStrategyFactory()
+  const categoryService = createCategoryService(categoryRepository)
+
+  const gameNotifier = createGameNotifier(notificationService)
   const gameService = createGameService(
     gameRepository,
     impostorStrategyFactory,
     wordProvider,
     logger,
+    gameNotifier,
   )
-  const categoryService = createCategoryService(categoryRepository)
 
-  const gameNotifier = createGameNotifier(notificationService)
+  const gameController = GameController(gameService, sessionManager, logger)
 
   io.on("connection", (socket) => {
-    registerGameSocketHandlers(
-      io,
-      socket,
-      gameService,
-      gameNotifier,
-      sessionManager,
-      logger,
-    )
+    const playerId = randomUUID()
+    sessionManager.createSession(socket.id, playerId)
+
+    registerGameSocketHandlers(socket, gameController, logger)
 
     socket.on("health", (_data) => {
       socket.emit("health", { status: "ok" })

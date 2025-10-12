@@ -1,16 +1,16 @@
 import { Server } from "socket.io"
-import { PlayerIdentifier } from "../player/Player"
-import { SessionManager } from "../session/SessionManager"
+import { PlayerIdentifier } from "./Player"
+import { SessionManager } from "../session/Session.manager"
 
-export interface NotificationPayload {
-  type: string
-  data: unknown
+export interface Notification<T> {
+  event: string
+  payload: T
 }
 
 export interface PlayerNotificationService {
-  notifyPlayer(
+  notifyPlayer<T>(
     playerId: PlayerIdentifier,
-    notification: NotificationPayload,
+    notification: Notification<T>,
   ): Promise<void>
 }
 
@@ -19,13 +19,16 @@ export function SocketIOPlayerNotificationService(
   sessionManager: SessionManager,
 ): PlayerNotificationService {
   return {
-    async notifyPlayer(playerId, notification) {
+    async notifyPlayer<T>(
+      playerId: PlayerIdentifier,
+      notification: Notification<T>,
+    ) {
       const session = sessionManager.getSessionByPlayer(playerId)
       if (!session) {
         throw new Error(`No active session for player ${playerId}`)
       }
 
-      io.to(session.connectionId).emit(notification.type, notification.data)
+      io.to(session.connectionId).emit(notification.event, notification.payload)
     },
   }
 }
