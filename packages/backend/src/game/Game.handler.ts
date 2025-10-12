@@ -45,7 +45,14 @@ export function registerGameSocketHandlers(
     socket.join(roomId)
     io.to(roomId).emit("player-joined", { name: playerName })
 
-    const shouldStart = await gameService.shouldStartGame(roomId)
+    let shouldStart
+    try {
+      shouldStart = await gameService.shouldStartGame(roomId)
+    } catch (err) {
+      logger.error({err}, "Could not determine if game should start")
+      socket.emit("game-error", {message: "Could not start game."})
+      return
+    }
 
     if (shouldStart) {
       try {
