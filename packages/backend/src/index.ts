@@ -3,13 +3,13 @@ import { Server } from "socket.io"
 import express from "express"
 import { createServer } from "node:http"
 import { randomUUID } from "node:crypto"
-import { MemoryGameRepository } from "./game/Game.repository"
-import { createGameService } from "./game/Game.service"
+import { MemoryRoomRepository } from "./room/Room.repository"
+import { createRoomService } from "./room/Room.service"
 import {
-  registerCreateGameHandler,
-  registerGameSocketHandlers,
-} from "./game/Game.handler"
-import { createGameNotifier } from "./game/Game.notifier"
+  registerCreateRoomHandler,
+  registerRoomSocketHandlers,
+} from "./room/Room.handler"
+import { createRoomNotifier } from "./room/Room.notifier"
 import { createImpostorStrategyFactory } from "./player/impostor/ImpostorStrategyFactory"
 import { createLogger } from "./logger/Logger"
 import { MongoWordProvider } from "./category/Word.provider"
@@ -19,7 +19,7 @@ import { createCategoryService } from "./category/Category.service"
 import { registerGetCategoriesHandler } from "./category/Category.handler"
 import { MemorySessionManager } from "./session/Session.manager"
 import { SocketIOPlayerNotificationService } from "./player/Player.notifier"
-import { GameController } from "./game/Game.controller"
+import { RoomController } from "./room/Room.controller"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -73,27 +73,27 @@ async function main() {
   const categoryRepository = MongoCategoryRepository(
     impostorDatabase.collection("Category"),
   )
-  const gameRepository = MemoryGameRepository()
+  const roomRepository = MemoryRoomRepository()
 
   const impostorStrategyFactory = createImpostorStrategyFactory()
   const categoryService = createCategoryService(categoryRepository)
 
-  const gameNotifier = createGameNotifier(notificationService)
-  const gameService = createGameService(
-    gameRepository,
+  const roomNotifier = createRoomNotifier(notificationService)
+  const roomService = createRoomService(
+    roomRepository,
     impostorStrategyFactory,
     wordProvider,
     logger,
-    gameNotifier,
+    roomNotifier,
   )
 
-  const gameController = GameController(gameService, sessionManager, logger)
+  const roomController = RoomController(roomService, sessionManager, logger)
 
   io.on("connection", (socket) => {
     const playerId = randomUUID()
     sessionManager.createSession(socket.id, playerId)
 
-    registerGameSocketHandlers(socket, gameController, logger)
+    registerRoomSocketHandlers(socket, roomController, logger)
 
     socket.on("health", (_data) => {
       socket.emit("health", { status: "ok" })
@@ -101,7 +101,7 @@ async function main() {
   })
 
   app.use(express.json())
-  registerCreateGameHandler(app, gameService, logger)
+  registerCreateRoomHandler(app, roomService, logger)
   registerGetCategoriesHandler(app, categoryService, logger)
 
   httpServer.listen(port, () => {

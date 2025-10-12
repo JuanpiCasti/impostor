@@ -1,1 +1,1 @@
-export * from "./game.schemas.js"
+export * from "./room.schemas.js"

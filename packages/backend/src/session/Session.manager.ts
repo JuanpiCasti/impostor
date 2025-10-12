@@ -1,10 +1,10 @@
-import { GameIdentifier } from "../game/Game"
+import { RoomIdentifier } from "../room/Room"
 import { PlayerIdentifier } from "../player/Player"
 
 export interface Session {
   playerId: PlayerIdentifier
   connectionId: string
-  gameIds: Set<GameIdentifier>
+  roomIds: Set<RoomIdentifier>
 }
 
 export interface SessionManager {
@@ -13,10 +13,10 @@ export interface SessionManager {
   getSessionByConnection(connectionId: string): Session | undefined
   getSessionByPlayer(playerId: PlayerIdentifier): Session | undefined
 
-  addGameToSession(playerId: PlayerIdentifier, gameId: GameIdentifier): void
-  removeGameFromSession(
+  addRoomToSession(playerId: PlayerIdentifier, roomId: RoomIdentifier): void
+  removeRoomFromSession(
     playerId: PlayerIdentifier,
-    gameId: GameIdentifier,
+    roomId: RoomIdentifier,
   ): void
   destroySession(connectionId: string): Session | undefined
 }
@@ -30,7 +30,7 @@ export function MemorySessionManager(): SessionManager {
       const session: Session = {
         playerId,
         connectionId,
-        gameIds: new Set(),
+        roomIds: new Set(),
       }
       byConnection.set(connectionId, session)
       byPlayer.set(playerId, connectionId)
@@ -45,17 +45,17 @@ export function MemorySessionManager(): SessionManager {
       return connectionId ? byConnection.get(connectionId) : undefined
     },
 
-    addGameToSession(playerId, gameId) {
+    addRoomToSession(playerId, roomId) {
       const session = this.getSessionByPlayer(playerId)
       if (session) {
-        session.gameIds.add(gameId)
+        session.roomIds.add(roomId)
       }
     },
 
-    removeGameFromSession(playerId, gameId) {
+    removeRoomFromSession(playerId, roomId) {
       const session = this.getSessionByPlayer(playerId)
       if (session) {
-        session.gameIds.delete(gameId)
+        session.roomIds.delete(roomId)
       }
     },
 

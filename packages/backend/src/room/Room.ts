@@ -1,18 +1,18 @@
 import { Player, PlayerIdentifier } from "../player/Player"
 import { Word } from "../category/Word"
 
-export type GameIdentifier = string
+export type RoomIdentifier = string
 
-export enum GameStatus {
+export enum RoomStatus {
   CREATING = "CREATING",
   STARTED = "STARTED",
 }
 
-export interface Game {
-  gameId: string
+export interface Room {
+  roomId: string
   maxPlayers: number
   word: Word
   players: Player[]
   impostor?: PlayerIdentifier
-  status: GameStatus
+  status: RoomStatus
 }
