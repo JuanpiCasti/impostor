@@ -46,7 +46,7 @@ async function main() {
     throw Error("Missing database variables.")
   }
 
-  const impostorDatabase = await createDatabaseClient(
+  const mongoClient = await createDatabaseClient(
     mongoHost,
     mongoPort,
     mongoUser,
@@ -54,6 +54,8 @@ async function main() {
     mongoDatabase,
     logger,
   )
+
+  const impostorDatabase = mongoClient.db(mongoDatabase)
 
   const app = express()
   const httpServer = createServer(app)

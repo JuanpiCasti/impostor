@@ -24,7 +24,6 @@ export interface RoomService {
     playerName: string,
     playerId: PlayerIdentifier,
   ) => Promise<void>
-  shouldStartRoom: (roomId: RoomIdentifier) => Promise<boolean>
   startRoom: (roomId: RoomIdentifier) => Promise<Room>
   getRoom: (roomId: RoomIdentifier) => Promise<Room>
   createRoom: (createRoomRequest: CreateRoomRequest) => Promise<string>
@@ -80,11 +79,6 @@ export function createRoomService(
       }
     },
 
-    async shouldStartRoom(roomId: RoomIdentifier) {
-      const room = await roomRepository.getRoom(roomId)
-      return room.players.length === room.maxPlayers
-    },
-
     async startRoom(roomId: RoomIdentifier) {
       const room = await roomRepository.getRoom(roomId)
 
@@ -93,7 +87,7 @@ export function createRoomService(
       }
 
       const strategy = impostorStrategyFactory.create(
-        ImpostorStrategyType.RANDOM,
+        ImpostorStrategyType.RANDOM, // May implement other strategies in the future (like "all impostors")
       )
       strategy.assignRoles(room.players)
       room.status = RoomStatus.STARTED
