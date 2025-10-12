@@ -4,7 +4,7 @@ import { ImpostorStrategy } from "./ImpostorStrategy"
 
 export function RandomImpostorStrategy(): ImpostorStrategy {
   return {
-    assignRoles: (players: Player[]) => {
+    assignRoles(players: Player[]) {
       if (players.length === 0) {
         return
       }

@@ -9,7 +9,7 @@ export function createCategoryService(
   categoryRepository: CategoryRepository,
 ): CategoryService {
   return {
-    getAllCategories: async () => {
+    async getAllCategories() {
       return categoryRepository.getAllCategories()
     },
   }

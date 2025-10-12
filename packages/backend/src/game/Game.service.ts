@@ -16,7 +16,7 @@ import { Logger } from "pino"
 export interface GameService {
   joinGame: (gameId: GameIdentifier, playerName: string) => Promise<Player>
   shouldStartGame: (gameId: GameIdentifier) => Promise<boolean>
-  startGame: (gameId: GameIdentifier) => Promise<void>
+  startGame: (gameId: GameIdentifier) => Promise<Game>
   getGame: (gameId: GameIdentifier) => Promise<Game>
   createGame: (createGameRequest: CreateGameRequest) => Promise<string>
   leaveGame: (
@@ -37,7 +37,7 @@ export function createGameService(
   logger: Logger,
 ): GameService {
   return {
-    joinGame: async (gameId: GameIdentifier, playerName: string) => {
+    async joinGame(gameId: GameIdentifier, playerName: string) {
       const game = await gameRepository.getGame(gameId)
 
       if (game.status === GameStatus.STARTED) {
@@ -60,12 +60,12 @@ export function createGameService(
       return player
     },
 
-    shouldStartGame: async (gameId: GameIdentifier) => {
+    async shouldStartGame(gameId: GameIdentifier) {
       const game = await gameRepository.getGame(gameId)
       return game.players.length === game.maxPlayers
     },
 
-    startGame: async (gameId: GameIdentifier) => {
+    async startGame(gameId: GameIdentifier) {
       const game = await gameRepository.getGame(gameId)
 
       if (game.status === GameStatus.STARTED) {
@@ -77,13 +77,15 @@ export function createGameService(
       )
       strategy.assignRoles(game.players)
       game.status = GameStatus.STARTED
+
+      return game
     },
 
-    getGame: async (gameId: GameIdentifier) => {
+    async getGame(gameId: GameIdentifier) {
       return await gameRepository.getGame(gameId)
     },
 
-    createGame: async (createGameRequest: CreateGameRequest) => {
+    async createGame(createGameRequest: CreateGameRequest) {
       if (
         createGameRequest.maxPlayers < 3 ||
         createGameRequest.maxPlayers > 10
@@ -99,6 +101,7 @@ export function createGameService(
 
       return gameId
     },
+
     async leaveGame(playerId: PlayerIdentifier, gameId: GameIdentifier) {
       let game
       try {
@@ -118,9 +121,11 @@ export function createGameService(
         this.deleteGame(gameId)
       }
     },
+
     async leaveGames(playerId: PlayerIdentifier, gameIds: GameIdentifier[]) {
       await Promise.all(gameIds.map((g) => this.leaveGame(playerId, g)))
     },
+
     async deleteGame(gameId: GameIdentifier) {
       return await gameRepository.deleteGame(gameId)
     },

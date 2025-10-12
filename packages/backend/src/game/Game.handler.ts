@@ -49,9 +49,7 @@ export function registerGameSocketHandlers(
 
     if (shouldStart) {
       try {
-        await gameService.startGame(roomId)
-
-        const game = await gameService.getGame(roomId)
+        const game = await gameService.startGame(roomId)
         await gameNotifier.notifyGameStart(game)
       } catch (err) {
         logger.error({ err }, "Error starting game")

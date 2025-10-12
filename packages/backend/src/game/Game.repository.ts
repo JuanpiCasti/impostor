@@ -20,6 +20,7 @@ export function MemoryGameRepository() {
       }
       return game
     },
+
     async createGame(word: Word, maxPlayers: number) {
       const gameId = generateRandomString(6)
       const game: Game = {
@@ -34,6 +35,7 @@ export function MemoryGameRepository() {
 
       return gameId
     },
+
     async deleteGame(gameId: GameIdentifier) {
       const game = this.getGame(gameId)
       games.delete(gameId)

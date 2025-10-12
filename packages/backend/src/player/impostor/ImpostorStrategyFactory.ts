@@ -12,7 +12,7 @@ export interface ImpostorStrategyFactory {
 
 export function createImpostorStrategyFactory(): ImpostorStrategyFactory {
   return {
-    create: (type: ImpostorStrategyType) => {
+    create(type: ImpostorStrategyType) {
       switch (type) {
         case ImpostorStrategyType.RANDOM:
           return RandomImpostorStrategy()

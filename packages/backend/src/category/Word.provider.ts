@@ -11,7 +11,7 @@ export function MemoryWordProvider(): WordProvider {
   categories.set("football", ["messi", "cr7", "modric"])
 
   return {
-    getRandomWord: async function (category: Category): Promise<Word> {
+    async getRandomWord(category: Category): Promise<Word> {
       const categoryWords = categories.get(category) ?? []
 
       if (categoryWords.length === 0) {
@@ -31,7 +31,7 @@ export function MemoryWordProvider(): WordProvider {
 
 export function MongoWordProvider(collection: Collection): WordProvider {
   return {
-    getRandomWord: async function (category: Category): Promise<Word> {
+    async getRandomWord(category: Category): Promise<Word> {
       const results = await collection
         .aggregate([
           { $match: { category: category } },

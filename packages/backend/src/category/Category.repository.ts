@@ -14,7 +14,7 @@ export function MongoCategoryRepository(
   collection: Collection<CategoryDocument>,
 ): CategoryRepository {
   return {
-    getAllCategories: async function (): Promise<Category[]> {
+    async getAllCategories(): Promise<Category[]> {
       const categories = await collection.find({}).toArray()
 
       return categories.map((doc) => doc.name)
