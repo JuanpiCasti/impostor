@@ -2,12 +2,16 @@ import { Player, PlayerIdentifier } from "../player/Player"
 import { WordProvider } from "../category/Word.provider"
 
 import { RoomRepository } from "./Room.repository"
-import { CreateRoomRequest, CreateRoomResponse } from "@impostor/schemas"
+import {
+  CreateRoomRequest,
+  CreateRoomResponse,
+  RoomStatus,
+} from "@impostor/schemas"
 import {
   ImpostorStrategyFactory,
   ImpostorStrategyType,
 } from "../player/impostor/ImpostorStrategyFactory"
-import { Room, RoomIdentifier, RoomStatus } from "./Room"
+import { Room, RoomIdentifier } from "./Room"
 import { RoomAlreadyStartedError, RoomFullError } from "./Room.error"
 import { Logger } from "pino"
 import { RoomNotifier } from "./Room.notifier"

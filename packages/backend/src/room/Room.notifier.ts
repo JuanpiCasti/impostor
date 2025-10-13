@@ -4,6 +4,7 @@ import {
   Notification,
   PlayerNotificationService,
 } from "../player/Player.notifier"
+import { PlayerJoinedNotification } from "@impostor/schemas"
 
 export enum NotificationType {
   ROOM_START = "room-start",
@@ -38,17 +39,18 @@ export function createRoomNotifier(
       )
     },
     async notifyPlayerJoined(room, playerName) {
+      const payload: PlayerJoinedNotification = {
+        name: playerName,
+        currentPlayers: room.players.map((p) => ({
+          name: p.name,
+          id: p.id,
+        })),
+        maxPlayers: room.maxPlayers,
+      }
+
       this.notifyRoom(room, {
         event: NotificationType.PLAYER_JOINED,
-        payload: {
-          name: playerName,
-          currentPlayers: room.players.map((p) => {
-            return {
-              name: p.name,
-              id: p.id,
-            }
-          }),
-        },
+        payload,
       })
     },
     async notifyLeftRoom(room, playerId) {

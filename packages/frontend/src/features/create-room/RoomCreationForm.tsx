@@ -1,9 +1,9 @@
 import { Button, Card, Form, Modal, Select } from "antd"
 import "./RoomCreationForm.css"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { getCategories } from "../../api/fetchCategories"
 import type { CategoryDropdownItem } from "./CategoryDropdownItem"
-import { useNavigate } from "react-router"
+import { useNavigate, createSearchParams } from "react-router"
 import { createRoomPost } from "../../api/createRoom"
 import type { CreateRoomRequest } from "@impostor/schemas"
 import { CouldNotCreateRoomClientError } from "./Errors"
@@ -43,7 +43,11 @@ export default function RoomCreationForm() {
 
   const createRoom = async (roomCreationRequest: CreateRoomRequest) => {
     try {
-      await createRoomPost(roomCreationRequest)
+      const room = await createRoomPost(roomCreationRequest)
+      navigate({
+        pathname: "/room",
+        search: `?${createSearchParams({ roomId: room.roomId })}`,
+      })
     } catch (err) {
       if (err instanceof CouldNotCreateRoomClientError) {
         setErrorIssues(err.data)

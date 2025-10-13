@@ -1,12 +1,8 @@
 import { Player, PlayerIdentifier } from "../player/Player"
 import { Word } from "../category/Word"
+import { RoomStatus } from "@impostor/schemas"
 
 export type RoomIdentifier = string
-
-export enum RoomStatus {
-  CREATING = "CREATING",
-  STARTED = "STARTED",
-}
 
 export interface Room {
   roomId: string

@@ -25,3 +25,17 @@ export interface CategoriesResponse {
 export interface CreateRoomResponse {
   roomId: string
 }
+
+export enum RoomStatus {
+  CREATING = "CREATING",
+  STARTED = "STARTED",
+}
+
+export interface PlayerJoinedNotification {
+  name: string
+  currentPlayers: Array<{
+    name: string
+    id: string
+  }>
+  maxPlayers: number
+}

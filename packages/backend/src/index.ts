@@ -102,6 +102,7 @@ async function main() {
     sessionManager.createSession(socket.id, playerId)
 
     registerRoomSocketHandlers(socket, roomController, logger)
+    logger.info("New websocket connection, sid: " + socket.id)
 
     socket.on("health", (_data) => {
       socket.emit("health", { status: "ok" })

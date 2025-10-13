@@ -11,11 +11,8 @@ export async function createRoomPost(
   values: CreateRoomRequest,
 ): Promise<CreateRoomResponse> {
   try {
-    const response: CreateRoomResponse = await axios.post(
-      `${API_BASE_URL}/room`,
-      values,
-    )
-    return response
+    const response = await axios.post(`${API_BASE_URL}/room`, values)
+    return response.data
   } catch (err) {
     if (err instanceof AxiosError) {
       if (err.response) {

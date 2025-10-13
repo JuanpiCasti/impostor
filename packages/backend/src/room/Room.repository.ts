@@ -1,6 +1,7 @@
 import { Word } from "../category/Word"
 
-import { Room, RoomIdentifier, RoomStatus } from "./Room"
+import { Room, RoomIdentifier } from "./Room"
+import { RoomStatus } from "@impostor/schemas"
 import { RoomNotFoundError } from "./Room.error"
 
 export interface RoomRepository {
