@@ -1,23 +1,22 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router"
+import { useSearchParams } from "react-router"
 import WaitingRoom from "./WaitingRoom"
 import { io } from "socket.io-client"
 import type { PlayerJoinedNotification } from "@impostor/schemas"
 
 const BASE_URL = import.meta.env.VITE_WS_BASE_URL
+const socket = io(`${BASE_URL}`, { reconnectionDelayMax: 10000 })
+
 export default function GameRoom() {
   const [players, setPlayers] = useState<string[]>([])
   const [maxPlayers, setMaxPlayers] = useState(0)
   const [gameState, setGameState] = useState("CREATING")
-  const { roomId } = useParams()
+  const [searchParams] = useSearchParams()
+  const roomId = searchParams.get("roomId")
 
   useEffect(() => {
-    const socket = io(`${BASE_URL}`, { reconnectionDelayMax: 10000 })
-
-    socket.on("connect", () => {
-      socket.emit("join-room", { roomId: roomId, playerName: "juampi" })
-      console.log("connected websockets")
-    })
+    console.log(roomId)
+    socket.emit("join-room", { roomId: roomId, playerName: "juampi" })
 
     socket.on("player-joined", (notif: PlayerJoinedNotification) => {
       console.log("player joined")
