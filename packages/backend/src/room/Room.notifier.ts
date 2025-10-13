@@ -42,12 +42,12 @@ export function createRoomNotifier(
         event: NotificationType.PLAYER_JOINED,
         payload: {
           name: playerName,
-          currentPlayers: room.players.map(p => {
+          currentPlayers: room.players.map((p) => {
             return {
               name: p.name,
-              id: p.id
+              id: p.id,
             }
-          })
+          }),
         },
       })
     },

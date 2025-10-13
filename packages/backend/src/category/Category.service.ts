@@ -1,8 +1,8 @@
-import { Category } from "./Category"
+import { CategoriesResponse } from "@impostor/schemas"
 import { CategoryRepository } from "./Category.repository"
 
 export interface CategoryService {
-  getAllCategories: () => Promise<Category[]>
+  getAllCategories: () => Promise<CategoriesResponse>
 }
 
 export function createCategoryService(
@@ -10,7 +10,7 @@ export function createCategoryService(
 ): CategoryService {
   return {
     async getAllCategories() {
-      return categoryRepository.getAllCategories()
+      return { categories: await categoryRepository.getAllCategories() }
     },
   }
 }

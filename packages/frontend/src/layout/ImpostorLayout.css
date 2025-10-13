@@ -1,0 +1,22 @@
+.layout {
+  text-align: center;
+  display: flex;
+  height: 100vh;
+}
+
+.content {
+  flex: 1 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer {
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.layout h1 {
+  font-family: Dokdo;
+  font-size: 5rem;
+}

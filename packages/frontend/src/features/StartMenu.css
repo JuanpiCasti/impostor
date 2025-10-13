@@ -1,0 +1,11 @@
+.start-menu {
+  width: 20rem;
+  height: 20rem;
+}
+
+.start-menu .ant-card-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

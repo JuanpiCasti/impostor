@@ -16,6 +16,7 @@
   "packageManager": "pnpm@10.18.0",
   "dependencies": {
     "@impostor/schemas": "workspace:*",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongodb": "^6.20.0",
@@ -25,6 +26,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "jest": "^30.2.0",

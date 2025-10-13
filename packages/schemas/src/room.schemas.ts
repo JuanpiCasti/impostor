@@ -15,3 +15,13 @@ export type JoinRequest = z.infer<typeof JoinRequestSchema>
 export type WordNotificationPayload =
   | { role: "IMPOSTOR"; word: undefined }
   | { role: "PLAYER"; word: string }
+
+export type Category = string
+
+export interface CategoriesResponse {
+  categories: Category[]
+}
+
+export interface CreateRoomResponse {
+  roomId: string
+}

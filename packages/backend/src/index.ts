@@ -1,6 +1,7 @@
 import "dotenv/config"
 import { Server } from "socket.io"
 import express from "express"
+import cors from "cors"
 import { createServer } from "node:http"
 import { randomUUID } from "node:crypto"
 import { MemoryRoomRepository } from "./room/Room.repository"
@@ -58,6 +59,11 @@ async function main() {
   const impostorDatabase = mongoClient.db(mongoDatabase)
 
   const app = express()
+  app.use(
+    cors({
+      origin: allowedOrigins,
+    }),
+  )
   const httpServer = createServer(app)
   const io = new Server(httpServer, {
     cors: {

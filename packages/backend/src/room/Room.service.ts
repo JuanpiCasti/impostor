@@ -2,7 +2,7 @@ import { Player, PlayerIdentifier } from "../player/Player"
 import { WordProvider } from "../category/Word.provider"
 
 import { RoomRepository } from "./Room.repository"
-import { CreateRoomRequest } from "@impostor/schemas"
+import { CreateRoomRequest, CreateRoomResponse } from "@impostor/schemas"
 import {
   ImpostorStrategyFactory,
   ImpostorStrategyType,
@@ -26,7 +26,9 @@ export interface RoomService {
   ) => Promise<void>
   startRoom: (roomId: RoomIdentifier) => Promise<Room>
   getRoom: (roomId: RoomIdentifier) => Promise<Room>
-  createRoom: (createRoomRequest: CreateRoomRequest) => Promise<string>
+  createRoom: (
+    createRoomRequest: CreateRoomRequest,
+  ) => Promise<CreateRoomResponse>
   leaveRoom: (
     playerId: PlayerIdentifier,
     roomId: RoomIdentifier,
@@ -113,7 +115,7 @@ export function createRoomService(
         createRoomRequest.maxPlayers,
       )
 
-      return roomId
+      return { roomId }
     },
 
     async leaveRoom(playerId: PlayerIdentifier, roomId: RoomIdentifier) {

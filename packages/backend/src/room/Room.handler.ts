@@ -58,14 +58,14 @@ export function registerCreateRoomHandler(
       return
     }
 
-    let roomId
+    let response
     try {
-      roomId = await roomService.createRoom(parsedData.data)
+      response = await roomService.createRoom(parsedData.data)
     } catch (err) {
       logger.error({ err }, "Failed to create room")
-      res.status(400).json({ message: "error" })
+      res.status(500).json({ message: "error" })
       return
     }
-    res.json({ roomId: roomId })
+    res.json(response)
   })
 }
