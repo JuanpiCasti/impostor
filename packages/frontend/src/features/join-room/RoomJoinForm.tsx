@@ -15,16 +15,27 @@ export default function RoomJoinForm() {
             maxPlayers: 3,
           }}
           onFinish={(formData) => {
-            navigate({
-              pathname: "/room",
-              search: `?${createSearchParams({ roomId: formData.roomId })}`,
-            })
+            navigate(
+              "/room?" + createSearchParams({ roomId: formData.roomId }),
+              {
+                state: {
+                  playerName: formData.playerName,
+                },
+              },
+            )
           }}
         >
           <Form.Item
             label="Room ID"
             name="roomId"
             rules={[{ required: true, message: "Must enter a room ID" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Your name"
+            name="playerName"
+            rules={[{ required: true, message: "Must enter a name" }]}
           >
             <Input />
           </Form.Item>

@@ -18,7 +18,7 @@ const headerStyle = {
 export default function ImpostorLayout() {
   return (
     <Layout className="layout" style={layoutStyle}>
-      <Header style={headerStyle}>
+      <Header style={headerStyle} className="layout-header">
         <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
           <h1 className="game-title">IMPOSTOR</h1>
         </Link>

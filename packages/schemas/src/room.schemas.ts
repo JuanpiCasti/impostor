@@ -39,3 +39,8 @@ export interface PlayerJoinedNotification {
   }>
   maxPlayers: number
 }
+
+export interface RoomStartNotification {
+  role: string
+  word: string
+}

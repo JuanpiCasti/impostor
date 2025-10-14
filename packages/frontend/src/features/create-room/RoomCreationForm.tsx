@@ -1,4 +1,4 @@
-import { Button, Card, Form, Modal, Select } from "antd"
+import { Button, Card, Form, Input, Modal, Select } from "antd"
 import "./RoomCreationForm.css"
 import { useEffect, useState } from "react"
 import { getCategories } from "../../api/fetchCategories"
@@ -41,12 +41,15 @@ export default function RoomCreationForm() {
     label: `${i + 3} Players`,
   }))
 
-  const createRoom = async (roomCreationRequest: CreateRoomRequest) => {
+  const createRoom = async (
+    roomCreationRequest: CreateRoomRequest & { playerName: string },
+  ) => {
     try {
       const room = await createRoomPost(roomCreationRequest)
-      navigate({
-        pathname: "/room",
-        search: `?${createSearchParams({ roomId: room.roomId })}`,
+      navigate("/room?" + createSearchParams({ roomId: room.roomId }), {
+        state: {
+          playerName: roomCreationRequest.playerName,
+        },
       })
     } catch (err) {
       if (err instanceof CouldNotCreateRoomClientError) {
@@ -92,6 +95,13 @@ export default function RoomCreationForm() {
               options={playerOptions}
               style={{ width: 200, textAlign: "left" }}
             />
+          </Form.Item>
+          <Form.Item
+            label="Your name"
+            name="playerName"
+            rules={[{ required: true, message: "Must enter a name" }]}
+          >
+            <Input />
           </Form.Item>
           <Form.Item label={null} style={{ marginTop: "40px" }}>
             <Button type="primary" htmlType="submit" size="large">

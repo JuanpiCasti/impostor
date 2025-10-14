@@ -3,9 +3,11 @@ import { Card, List } from "antd"
 export default function WaitingRoom({
   players,
   maxPlayers,
+  roomId,
 }: {
   players: string[]
   maxPlayers: number
+  roomId: string
 }) {
   return (
     <Card
@@ -16,7 +18,10 @@ export default function WaitingRoom({
       <List
         header={
           <div>
-            {players.length} of {maxPlayers}
+            <h1>Room: {roomId} </h1>
+            <p>
+              {players.length} of {maxPlayers}
+            </p>
           </div>
         }
         bordered
