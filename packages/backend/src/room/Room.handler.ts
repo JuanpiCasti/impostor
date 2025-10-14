@@ -8,6 +8,7 @@ import {
   RoomNotFoundError,
   InvalidJoinRequestException,
   RoomFullError,
+  SessionNotFoundError,
 } from "./Room.error"
 import { Logger } from "../logger/Logger"
 import { RoomController } from "./Room.controller"
@@ -25,13 +26,13 @@ export function registerRoomSocketHandlers(
         err instanceof RoomFullError ||
         err instanceof RoomAlreadyStartedError ||
         err instanceof RoomNotFoundError ||
-        err instanceof RoomAlreadyStartedError ||
-        err instanceof RoomFullError ||
-        err instanceof InvalidJoinRequestException
+        err instanceof InvalidJoinRequestException ||
+        err instanceof SessionNotFoundError
       ) {
         socket.emit("room-error", { message: err.message })
         return
       }
+      logger.error({ err }, "Unexpected error in join-room handler")
       socket.emit("room-error", { message: "Could not join room." })
     }
   })

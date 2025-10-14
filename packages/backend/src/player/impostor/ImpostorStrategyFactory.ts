@@ -12,15 +12,9 @@ export interface ImpostorStrategyFactory {
 
 export function createImpostorStrategyFactory(): ImpostorStrategyFactory {
   return {
-    create(type: ImpostorStrategyType) {
-      switch (type) {
-        case ImpostorStrategyType.RANDOM:
-          return RandomImpostorStrategy()
-        case ImpostorStrategyType.ALL_IMPOSTOR:
-          throw new Error("ALL_IMPOSTOR strategy not implemented yet")
-        default:
-          throw new Error(`Unknown impostor strategy type: ${type}`)
-      }
+    create(_type: ImpostorStrategyType) {
+      // TODO: Implement more impostor decision strategies
+      return RandomImpostorStrategy()
     },
   }
 }

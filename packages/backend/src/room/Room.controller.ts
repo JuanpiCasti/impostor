@@ -3,7 +3,7 @@ import { Socket } from "socket.io"
 import { RoomService } from "./Room.service"
 import { SessionManager } from "../session/Session.manager"
 import { Logger } from "pino"
-import { InvalidJoinRequestException } from "./Room.error"
+import { InvalidJoinRequestException, SessionNotFoundError } from "./Room.error"
 
 export interface RoomController {
   joinRoom(socket: Socket, joinRequest: JoinRequest): Promise<void>
@@ -25,7 +25,7 @@ export function RoomController(
 
       const session = sessionManager.getSessionByConnection(socket.id)
       if (!session) {
-        throw new Error("Session not found for socket")
+        throw new SessionNotFoundError("Session not found for socket")
       }
 
       sessionManager.addRoomToSession(session.playerId, roomId)
@@ -33,9 +33,9 @@ export function RoomController(
       try {
         await roomService.joinRoom(roomId, playerName, session.playerId)
         await socket.join(roomId)
-      } catch (error) {
+      } catch (err) {
         sessionManager.removeRoomFromSession(session.playerId, roomId)
-        throw error
+        throw err
       }
     },
     async leaveRoom(socket: Socket) {

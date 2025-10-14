@@ -48,13 +48,13 @@ export function createRoomNotifier(
         maxPlayers: room.maxPlayers,
       }
 
-      this.notifyRoom(room, {
+      await this.notifyRoom(room, {
         event: NotificationType.PLAYER_JOINED,
         payload,
       })
     },
     async notifyLeftRoom(room, playerId) {
-      this.notifyRoom(room, {
+      await this.notifyRoom(room, {
         event: NotificationType.PLAYER_LEFT,
         payload: {
           playerId,

@@ -1,6 +1,7 @@
 import { Collection } from "mongodb"
 import { Category } from "./Category"
 import { Word } from "./Word"
+import { EmptyCategoryError, InvalidCategoryError } from "./Category.error"
 
 export interface WordProvider {
   getRandomWord: (category: Category) => Promise<Word>
@@ -15,7 +16,7 @@ export function MemoryWordProvider(): WordProvider {
       const categoryWords = categories.get(category) ?? []
 
       if (categoryWords.length === 0) {
-        throw new Error("invalid category")
+        throw new InvalidCategoryError("invalid category")
       }
 
       const wordString =
@@ -40,7 +41,7 @@ export function MongoWordProvider(collection: Collection): WordProvider {
         .toArray()
 
       if (results.length === 0) {
-        throw new Error(`No words found for category: ${category}`)
+        throw new EmptyCategoryError(`No words found for category: ${category}`)
       }
 
       const wordDoc = results[0]

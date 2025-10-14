@@ -1,5 +1,6 @@
-import { Card } from "antd"
+import { Button, Card } from "antd"
 import "./DisplayWord.css"
+import { Link } from "react-router"
 
 export default function DisplayWord({
   word,
@@ -14,6 +15,11 @@ export default function DisplayWord({
     <Card title="Game start!" variant="borderless" style={{ width: 300 }}>
       <div className="message-container">
         <p className="message-text">{message}</p>
+      </div>
+      <div>
+        <Link to="/">
+          <Button type="primary">Play Again</Button>
+        </Link>
       </div>
     </Card>
   )
