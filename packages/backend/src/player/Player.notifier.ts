@@ -26,7 +26,9 @@ export function SocketIOPlayerNotificationService(
     ) {
       const session = sessionManager.getSessionByPlayer(playerId)
       if (!session) {
-        throw new SessionNotFoundError(`No active session for player ${playerId}`)
+        throw new SessionNotFoundError(
+          `No active session for player ${playerId}`,
+        )
       }
 
       io.to(session.connectionId).emit(notification.event, notification.payload)

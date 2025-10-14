@@ -1,4 +1,6 @@
-import { Card, List } from "antd"
+import { CopyOutlined } from "@ant-design/icons"
+import { Button, Card, List } from "antd"
+import "./WaitingRoom.css"
 
 export default function WaitingRoom({
   players,
@@ -18,7 +20,19 @@ export default function WaitingRoom({
       <List
         header={
           <div>
-            <h1>Room: {roomId} </h1>
+            <div className="waiting-header">
+              <h1>Room: {roomId} 
+
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(roomId)
+                }}
+              >
+                <CopyOutlined className="copy-icon" />
+              </Button>
+              </h1>
+
+            </div>
             <p>
               {players.length} of {maxPlayers}
             </p>

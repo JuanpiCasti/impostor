@@ -12,7 +12,11 @@ import {
   ImpostorStrategyType,
 } from "../player/impostor/ImpostorStrategyFactory"
 import { Room, RoomIdentifier } from "./Room"
-import { InvalidPlayerCountError, RoomAlreadyStartedError, RoomFullError } from "./Room.error"
+import {
+  InvalidPlayerCountError,
+  RoomAlreadyStartedError,
+  RoomFullError,
+} from "./Room.error"
 import { Logger } from "pino"
 import { RoomNotifier } from "./Room.notifier"
 
@@ -110,7 +114,9 @@ export function createRoomService(
         createRoomRequest.maxPlayers < 3 ||
         createRoomRequest.maxPlayers > 10
       ) {
-        throw new InvalidPlayerCountError("Invalid player count, should be between 3 and 10")
+        throw new InvalidPlayerCountError(
+          "Invalid player count, should be between 3 and 10",
+        )
       }
 
       const word = await wordProvider.getRandomWord(createRoomRequest.category)

@@ -16,10 +16,11 @@ export function registerGetCategoriesHandler(
         await categoryService.getAllCategories()
       res.json(categories)
     } catch (err) {
-      if (err instanceof InvalidCategoryError ||
+      if (
+        err instanceof InvalidCategoryError ||
         err instanceof EmptyCategoryError
       ) {
-        res.status(400).json({message: "Invalid category"})
+        res.status(400).json({ message: "Invalid category" })
         return
       }
       logger.error({ err }, "Failed to fetch categories")
