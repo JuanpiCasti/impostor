@@ -13,7 +13,40 @@ services:
       - mongo-impostor:/data/db
       - mongo-impostor-config:/data/configdb
       - ./scripts/mongo:/docker-entrypoint-initdb.d
-  
+
+  backend:
+    build:
+      context: .
+      target: backend
+    container_name: impostor-backend
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+    ports:
+      - "3000:3000"
+    networks:
+      - app_network
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      target: frontend
+    container_name: impostor-frontend
+    ports:
+      - "80:80"
+    networks:
+      - app_network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 
 volumes:
   mongo-impostor:

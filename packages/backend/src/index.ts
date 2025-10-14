@@ -35,30 +35,18 @@ if (!allowedOrigins) {
 async function main() {
   const logger = createLogger()
 
-  const mongoHost = process.env.MONGO_HOST
-  const mongoPort = process.env.MONGO_PORT
-  const mongoUser = process.env.MONGO_USER
-  const mongoPassword = process.env.MONGO_PASSWORD
+  const mongoUri = process.env.MONGO_URI
   const mongoDatabase = process.env.MONGO_DATABASE
 
-  if (
-    !mongoHost ||
-    !mongoPort ||
-    !mongoUser ||
-    !mongoPassword ||
-    !mongoDatabase
-  ) {
-    throw Error("Missing database variables.")
+  if (!mongoUri) {
+    throw Error("Missing required MONGO_URI environment variable")
   }
 
-  const mongoClient = await createDatabaseClient(
-    mongoHost,
-    mongoPort,
-    mongoUser,
-    mongoPassword,
-    mongoDatabase,
-    logger,
-  )
+  if (!mongoDatabase) {
+    throw Error("Missing required MONGO_DATABASE environment variable")
+  }
+
+  const mongoClient = await createDatabaseClient(mongoUri, logger)
 
   const impostorDatabase = mongoClient.db(mongoDatabase)
 
@@ -140,4 +128,3 @@ main().catch((err) => {
   console.error("Failed to start server:", err)
   process.exit(1)
 })
-
