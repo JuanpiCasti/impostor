@@ -21,6 +21,10 @@ import { registerGetCategoriesHandler } from "./category/Category.handler"
 import { MemorySessionManager } from "./session/Session.manager"
 import { SocketIOPlayerNotificationService } from "./player/Player.notifier"
 import { RoomController } from "./room/Room.controller"
+import {
+  LoggingMiddleware,
+  WebSocketLoggingMiddleware,
+} from "./logger/LoggingMiddleware"
 
 const port = +(process.env.PORT ?? 3000)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
@@ -64,12 +68,27 @@ async function main() {
       origin: allowedOrigins,
     }),
   )
+  app.use(express.json())
+  app.use(LoggingMiddleware(logger))
   const httpServer = createServer(app)
   const io = new Server(httpServer, {
     cors: {
       origin: allowedOrigins,
     },
   })
+
+  const gracefulShutdown = async () => {
+    logger.info("Terminating application...")
+    await mongoClient.close()
+    await io.close()
+    await httpServer.close()
+    process.exit(0)
+  }
+
+  process.on("SIGINT", gracefulShutdown)
+  process.on("SIGTERM", gracefulShutdown)
+
+  io.use(WebSocketLoggingMiddleware(logger))
 
   const sessionManager = MemorySessionManager()
   const notificationService = SocketIOPlayerNotificationService(
@@ -109,7 +128,6 @@ async function main() {
     })
   })
 
-  app.use(express.json())
   registerCreateRoomHandler(app, roomService, logger)
   registerGetCategoriesHandler(app, categoryService, logger)
 
@@ -122,3 +140,4 @@ main().catch((err) => {
   console.error("Failed to start server:", err)
   process.exit(1)
 })
+

@@ -38,6 +38,7 @@ export function registerRoomSocketHandlers(
   })
 
   socket.on("disconnect", async () => {
+    logger.info(`Socket with id ${socket.id} disconnected`)
     try {
       await roomController.leaveRoom(socket)
     } catch (err) {

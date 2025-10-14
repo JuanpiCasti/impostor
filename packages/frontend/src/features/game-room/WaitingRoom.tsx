@@ -21,17 +21,16 @@ export default function WaitingRoom({
         header={
           <div>
             <div className="waiting-header">
-              <h1>Room: {roomId} 
-
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(roomId)
-                }}
-              >
-                <CopyOutlined className="copy-icon" />
-              </Button>
+              <h1>
+                Room: {roomId}
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(roomId)
+                  }}
+                >
+                  <CopyOutlined className="copy-icon" />
+                </Button>
               </h1>
-
             </div>
             <p>
               {players.length} of {maxPlayers}
