@@ -8,6 +8,8 @@ import type {
 } from "@impostor/schemas"
 import DisplayWord from "./DisplayWord"
 import Countdown from "./Countdown"
+import { message, Spin } from "antd"
+import ErrorMessage from "./ErrorMessage"
 
 const BASE_URL = import.meta.env.VITE_WS_BASE_URL
 
@@ -21,6 +23,9 @@ export default function GameRoom() {
   const [word, setWord] = useState("")
   const [countdown, setCountdown] = useState(5)
   const [countdownFinished, setCountdownFinished] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const location = useLocation()
   const playerName = location.state?.playerName
@@ -44,15 +49,24 @@ export default function GameRoom() {
       setGameState("STARTED")
       setRole(notif.role)
       setWord(notif.word)
+      setLoading(false)
       socket.disconnect()
+    }
+
+    const onRoomError = (notif: {message: string}) => {
+      setError(true)
+      setErrorMessage(notif.message)
     }
 
     socket.on("player-joined", onPlayerJoined)
 
     socket.on("room-start", onRoomStarted)
 
+    socket.on("room-error", onRoomError)
+
     return () => {
       socket.off("player-joined", onPlayerJoined)
+      socket.off("room-start", onRoomStarted)
       socket.disconnect()
     }
   }, [roomId, playerName])
@@ -72,7 +86,13 @@ export default function GameRoom() {
     }
   }, [countdown, gameState])
 
-  return gameState === "CREATING" ? (
+  if (error) {return (
+    <ErrorMessage  message={errorMessage} />
+  )}
+
+  if (loading) {return <Spin size="large" />}
+
+  return (gameState === "CREATING" ? (
     <WaitingRoom
       roomId={roomId || "..."}
       players={players}
@@ -82,5 +102,5 @@ export default function GameRoom() {
     <DisplayWord word={word} role={role} />
   ) : (
     <Countdown countdown={countdown} />
-  )
+  ))
 }
