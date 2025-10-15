@@ -41,6 +41,7 @@ export default function GameRoom() {
 
     const onPlayerJoined = (notif: PlayerJoinedNotification) => {
       console.log("player joined")
+      setLoading(false)
       setPlayers(notif.currentPlayers.map((p) => p.name))
       setMaxPlayers(notif.maxPlayers)
     }
@@ -49,7 +50,6 @@ export default function GameRoom() {
       setGameState("STARTED")
       setRole(notif.role)
       setWord(notif.word)
-      setLoading(false)
       socket.disconnect()
     }
 
