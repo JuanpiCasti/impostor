@@ -1,15 +1,22 @@
-import { CopyOutlined } from "@ant-design/icons"
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CopyOutlined,
+} from "@ant-design/icons"
 import { Button, Card, List } from "antd"
 import "./WaitingRoom.css"
+import type { PlayerOut } from "@impostor/schemas"
 
 export default function WaitingRoom({
   players,
-  maxPlayers,
+  onPlayerReady,
   roomId,
+  disabled,
 }: {
-  players: string[]
-  maxPlayers: number
+  players: PlayerOut[]
+  onPlayerReady: () => void
   roomId: string
+  disabled: boolean
 }) {
   return (
     <Card
@@ -32,15 +39,26 @@ export default function WaitingRoom({
                 </Button>
               </h1>
             </div>
-            <p>
-              {players.length} of {maxPlayers}
-            </p>
           </div>
         }
         bordered
         dataSource={players}
-        renderItem={(player) => <List.Item>{player}</List.Item>}
+        renderItem={(player) => (
+          <List.Item>
+            <span className="player-name">{player.name}</span>
+            {player.ready ? (
+              <CheckCircleOutlined className="ready-icon" />
+            ) : (
+              <ClockCircleOutlined className="waiting-icon" />
+            )}
+          </List.Item>
+        )}
       />
+      <div style={{ marginTop: "1rem" }}>
+        <Button type="primary" onClick={onPlayerReady} disabled={disabled}>
+          Ready
+        </Button>
+      </div>
     </Card>
   )
 }

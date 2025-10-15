@@ -1,4 +1,3 @@
-import { Word } from "../category/Word"
 
 import { Room, RoomIdentifier } from "./Room"
 import { RoomStatus } from "@impostor/schemas"
@@ -6,8 +5,11 @@ import { RoomNotFoundError } from "./Room.error"
 
 export interface RoomRepository {
   deleteRoom(roomId: string): Promise<Room>
-  createRoom: (word: Word, maxPlayers: number) => Promise<string>
+  createRoom: (
+    category: string,
+  ) => Promise<string>
   getRoom: (id: RoomIdentifier) => Promise<Room>
+  updateRoom: (room: Room) => Promise<void>
 }
 
 export function MemoryRoomRepository() {
@@ -22,12 +24,11 @@ export function MemoryRoomRepository() {
       return room
     },
 
-    async createRoom(word: Word, maxPlayers: number) {
+    async createRoom(category: string) {
       const roomId = generateRandomString(6)
       const room: Room = {
         roomId: roomId,
-        word: word,
-        maxPlayers: maxPlayers,
+        category: category,
         players: [],
         status: RoomStatus.CREATING,
       }
@@ -35,6 +36,10 @@ export function MemoryRoomRepository() {
       rooms.set(roomId, room)
 
       return roomId
+    },
+
+    async updateRoom(room: Room) {
+      rooms.set(room.roomId, room)
     },
 
     async deleteRoom(roomId: RoomIdentifier) {

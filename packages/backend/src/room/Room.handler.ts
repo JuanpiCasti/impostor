@@ -45,6 +45,15 @@ export function registerRoomSocketHandlers(
       logger.error({ err }, "Error on disconnection routine")
     }
   })
+
+  socket.on("player-ready", async () => {
+    try {
+      await roomController.playerReady(socket)
+    } catch (err) {
+      logger.error({ err }, "Unexpected error in play-again handler")
+      socket.emit("room-error", { message: "Could not set player ready" })
+    }
+  })
 }
 
 export function registerCreateRoomHandler(

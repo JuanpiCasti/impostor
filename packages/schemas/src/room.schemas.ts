@@ -1,7 +1,6 @@
 import * as z from "zod"
 
 export const CreateRoomRequestSchema = z.object({
-  maxPlayers: z.int(),
   category: z.string().min(3).max(10),
 })
 export type CreateRoomRequest = z.infer<typeof CreateRoomRequestSchema>
@@ -31,13 +30,14 @@ export enum RoomStatus {
   STARTED = "STARTED",
 }
 
-export interface PlayerJoinedNotification {
+export interface PlayerOut {
   name: string
-  currentPlayers: Array<{
-    name: string
-    id: string
-  }>
-  maxPlayers: number
+  id: string
+  ready?: boolean
+}
+
+export interface PlayersNotification {
+  currentPlayers: Array<PlayerOut>
 }
 
 export interface RoomStartNotification {

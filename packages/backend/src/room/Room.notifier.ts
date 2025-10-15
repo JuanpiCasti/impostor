@@ -4,18 +4,20 @@ import {
   Notification,
   PlayerNotificationService,
 } from "../player/Player.notifier"
-import { PlayerJoinedNotification } from "@impostor/schemas"
+import {
+  PlayersNotification,
+  
+} from "@impostor/schemas"
+import { Player } from "../player/Player"
 
 export enum NotificationType {
   ROOM_START = "room-start",
-  PLAYER_LEFT = "player-left",
-  PLAYER_JOINED = "player-joined",
+  PLAYER_CHANGE = "player-change",
 }
 
 export interface RoomNotifier {
-  notifyLeftRoom(room: Room, playerId: string): unknown
   notifyRoomStart(room: Room): Promise<void>
-  notifyPlayerJoined(room: Room, playerName: string): Promise<void>
+  notifyPlayerChange(room: Room): Promise<void>
   notifyRoom<T>(room: Room, notification: Notification<T>): Promise<void>
 }
 
@@ -32,33 +34,18 @@ export function createRoomNotifier(
             event: NotificationType.ROOM_START,
             payload: {
               role: player.role,
-              word: isImpostor ? undefined : room.word.word,
+              word: isImpostor ? undefined : room.word?.word,
             },
           })
         }),
       )
     },
-    async notifyPlayerJoined(room, playerName) {
-      const payload: PlayerJoinedNotification = {
-        name: playerName,
-        currentPlayers: room.players.map((p) => ({
-          name: p.name,
-          id: p.id,
-        })),
-        maxPlayers: room.maxPlayers,
-      }
+    async notifyPlayerChange(room) {
+      const payload = buildPlayerNotification(room)
 
       await this.notifyRoom(room, {
-        event: NotificationType.PLAYER_JOINED,
+        event: NotificationType.PLAYER_CHANGE,
         payload,
-      })
-    },
-    async notifyLeftRoom(room, playerId) {
-      await this.notifyRoom(room, {
-        event: NotificationType.PLAYER_LEFT,
-        payload: {
-          playerId,
-        },
       })
     },
     async notifyRoom(room, payload) {
@@ -69,4 +56,16 @@ export function createRoomNotifier(
       )
     },
   }
+}
+
+function currentPlayersDTOs(players: Player[]) {
+  return players.map(p => ({
+          name: p.name,
+          id: p.id,
+          ready: p.ready
+        }))
+}
+
+function buildPlayerNotification(room: Room) : PlayersNotification {
+  return { currentPlayers: currentPlayersDTOs(room.players)}
 }

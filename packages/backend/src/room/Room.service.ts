@@ -13,7 +13,7 @@ import {
 } from "../player/impostor/ImpostorStrategyFactory"
 import { Room, RoomIdentifier } from "./Room"
 import {
-  InvalidPlayerCountError,
+  PlayerNotInRoomError,
   RoomAlreadyStartedError,
   RoomFullError,
 } from "./Room.error"
@@ -46,6 +46,11 @@ export interface RoomService {
     roomIds: RoomIdentifier[],
   ) => Promise<void>
   deleteRoom(roomId: RoomIdentifier): Promise<Room>
+  setPlayerReady(
+    roomId: RoomIdentifier,
+    playerId: PlayerIdentifier,
+    ready: boolean,
+  ): Promise<void>
 }
 
 export function createRoomService(
@@ -63,9 +68,9 @@ export function createRoomService(
         throw new RoomAlreadyStartedError(
           "Cannot join a room that has already started",
         )
-      }
+     }
 
-      if (room.players.length >= room.maxPlayers) {
+      if (room.players.length >= 12) {
         throw new RoomFullError("Room is full")
       }
 
@@ -76,31 +81,27 @@ export function createRoomService(
 
       room.players.push(player)
 
-      await roomNotifier.notifyPlayerJoined(room, playerName)
-
-      if (room.players.length === room.maxPlayers) {
-        const strategy = impostorStrategyFactory.create(
-          ImpostorStrategyType.RANDOM,
-        )
-        strategy.assignRoles(room.players)
-        room.status = RoomStatus.STARTED
-
-        await roomNotifier.notifyRoomStart(room)
-      }
+      await roomNotifier.notifyPlayerChange(room)
     },
 
     async startRoom(roomId: RoomIdentifier) {
       const room = await roomRepository.getRoom(roomId)
 
-      if (room.status === RoomStatus.STARTED) {
-        throw new RoomAlreadyStartedError("Room already started")
-      }
-
       const strategy = impostorStrategyFactory.create(
         ImpostorStrategyType.RANDOM, // May implement other strategies in the future (like "all impostors")
       )
+      
+      room.word = await wordProvider.getRandomWord(room.category)
       strategy.assignRoles(room.players)
       room.status = RoomStatus.STARTED
+      
+      await roomRepository.updateRoom(room)
+
+      await roomNotifier.notifyRoomStart(room)
+
+      room.players.forEach(p => {
+        p.ready = false
+      })
 
       return room
     },
@@ -110,19 +111,9 @@ export function createRoomService(
     },
 
     async createRoom(createRoomRequest: CreateRoomRequest) {
-      if (
-        createRoomRequest.maxPlayers < 3 ||
-        createRoomRequest.maxPlayers > 10
-      ) {
-        throw new InvalidPlayerCountError(
-          "Invalid player count, should be between 3 and 10",
-        )
-      }
 
-      const word = await wordProvider.getRandomWord(createRoomRequest.category)
       const roomId = await roomRepository.createRoom(
-        word,
-        createRoomRequest.maxPlayers,
+        createRoomRequest.category,
       )
 
       return { roomId }
@@ -143,10 +134,18 @@ export function createRoomService(
       if (index !== -1) {
         players.splice(index, 1)
       }
-      roomNotifier.notifyLeftRoom(room, playerId)
-      if (players.length <= 0) {
+      roomNotifier.notifyPlayerChange(room)
+      if (players.length <= 3) {
         this.deleteRoom(roomId)
         return
+      }
+
+      const hasReadyPlayers = room.players.some((p) => p.ready === true)
+      if (hasReadyPlayers) {
+        const allReady = room.players.every((p) => p.ready === true)
+        if (allReady) {
+          await this.startRoom(roomId)
+        }
       }
     },
 
@@ -155,7 +154,31 @@ export function createRoomService(
     },
 
     async deleteRoom(roomId: RoomIdentifier) {
+      // Notify players room ended
       return await roomRepository.deleteRoom(roomId)
+    },
+
+    async setPlayerReady(
+      roomId: RoomIdentifier,
+      playerId: PlayerIdentifier,
+      ready: boolean,
+    ) {
+      const room = await roomRepository.getRoom(roomId)
+      const player = room.players.find((p) => p.id === playerId)
+
+      if (!player) {
+        throw new PlayerNotInRoomError(playerId, roomId)
+      }
+
+      player.ready = ready
+
+      await roomRepository.updateRoom(room)
+      await roomNotifier.notifyPlayerChange(room)
+
+      const allReady = room.players.every((p) => p.ready === true)
+      if (room.players.length >= 3 && allReady) {
+        await this.startRoom(roomId)
+      }
     },
   }
 }

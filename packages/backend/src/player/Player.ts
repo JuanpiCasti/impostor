@@ -6,4 +6,5 @@ export interface Player {
   name: string
   id: PlayerIdentifier
   role?: Role
+  ready?: boolean
 }

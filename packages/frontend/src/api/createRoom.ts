@@ -1,10 +1,9 @@
-import type { CreateRoomRequest } from "@impostor/schemas"
+import type { CreateRoomRequest, CreateRoomResponse } from "@impostor/schemas"
 import axios, { AxiosError } from "axios"
 import {
   CouldNotCreateRoomClientError,
   CouldNotCreateRoomServerError,
 } from "../features/create-room/Errors"
-import type { CreateRoomResponse } from "@impostor/schemas"
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 export async function createRoomPost(

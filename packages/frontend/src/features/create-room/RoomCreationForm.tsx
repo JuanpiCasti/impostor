@@ -36,10 +36,6 @@ export default function RoomCreationForm() {
     loadCategories()
   }, [form])
 
-  const playerOptions = Array.from({ length: 8 }, (_, i) => ({
-    value: i + 3,
-    label: `${i + 3} Players`,
-  }))
 
   const createRoom = async (
     roomCreationRequest: CreateRoomRequest & { playerName: string },
@@ -69,9 +65,6 @@ export default function RoomCreationForm() {
         <Form
           form={form}
           layout="vertical"
-          initialValues={{
-            maxPlayers: 3,
-          }}
           onFinish={createRoom}
         >
           <Form.Item
@@ -81,18 +74,6 @@ export default function RoomCreationForm() {
           >
             <Select
               options={categories}
-              style={{ width: 200, textAlign: "left" }}
-            />
-          </Form.Item>
-          <Form.Item
-            label="Players"
-            name="maxPlayers"
-            rules={[
-              { required: true, message: "Must select number of players." },
-            ]}
-          >
-            <Select
-              options={playerOptions}
               style={{ width: 200, textAlign: "left" }}
             />
           </Form.Item>
