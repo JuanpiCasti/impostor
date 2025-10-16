@@ -132,7 +132,7 @@ export function createRoomService(
         players.splice(index, 1)
       }
       roomNotifier.notifyPlayerChange(room)
-      if (players.length <= 3) {
+      if (players.length <= 0) {
         this.deleteRoom(roomId)
         return
       }
