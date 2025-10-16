@@ -61,7 +61,7 @@ I decided to build this application with a **TypeScript** monorepo to keep it si
 
 For the word database, I simply used a MongoDB with a single collection for the words (indexed by category). I could have used a SQLite database or just a file, because it is a pretty small and static database (this app is not doing any inserts).
 
-For the backend, I used **Express.js** for the REST endpoints and **Socket.io**. The state of the ongoing rooms is stored in the memory of the backend server as of now, I would like to store them in a Redis or Valkey instance in the future for scalability.
+For the backend, I used **Express.js** for the REST endpoints and **Socket.io**. The state of the ongoing rooms and the player session data is stored in the memory of the backend server (Session.manager.ts) as of now, I would like to store them in a Redis or Valkey instance in the future for scalability.
 
 For the frontend, I used **React**, it was very easy to integrate it with the Socket.io backend.
 
