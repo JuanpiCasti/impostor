@@ -68,7 +68,7 @@ export function createRoomService(
         throw new RoomAlreadyStartedError(
           "Cannot join a room that has already started",
         )
-     }
+      }
 
       if (room.players.length >= 12) {
         throw new RoomFullError("Room is full")
@@ -90,16 +90,16 @@ export function createRoomService(
       const strategy = impostorStrategyFactory.create(
         ImpostorStrategyType.RANDOM, // May implement other strategies in the future (like "all impostors")
       )
-      
+
       room.word = await wordProvider.getRandomWord(room.category)
       strategy.assignRoles(room.players)
       room.status = RoomStatus.STARTED
-      
+
       await roomRepository.updateRoom(room)
 
       await roomNotifier.notifyRoomStart(room)
 
-      room.players.forEach(p => {
+      room.players.forEach((p) => {
         p.ready = false
       })
 
@@ -111,10 +111,7 @@ export function createRoomService(
     },
 
     async createRoom(createRoomRequest: CreateRoomRequest) {
-
-      const roomId = await roomRepository.createRoom(
-        createRoomRequest.category,
-      )
+      const roomId = await roomRepository.createRoom(createRoomRequest.category)
 
       return { roomId }
     },

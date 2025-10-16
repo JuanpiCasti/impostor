@@ -36,7 +36,6 @@ export default function RoomCreationForm() {
     loadCategories()
   }, [form])
 
-
   const createRoom = async (
     roomCreationRequest: CreateRoomRequest & { playerName: string },
   ) => {
@@ -62,11 +61,7 @@ export default function RoomCreationForm() {
   return (
     <>
       <Card className="form-menu">
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={createRoom}
-        >
+        <Form form={form} layout="vertical" onFinish={createRoom}>
           <Form.Item
             label="Category"
             name="category"

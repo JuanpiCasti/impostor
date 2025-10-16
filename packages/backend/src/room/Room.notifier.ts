@@ -4,10 +4,7 @@ import {
   Notification,
   PlayerNotificationService,
 } from "../player/Player.notifier"
-import {
-  PlayersNotification,
-  
-} from "@impostor/schemas"
+import { PlayersNotification } from "@impostor/schemas"
 import { Player } from "../player/Player"
 
 export enum NotificationType {
@@ -59,13 +56,13 @@ export function createRoomNotifier(
 }
 
 function currentPlayersDTOs(players: Player[]) {
-  return players.map(p => ({
-          name: p.name,
-          id: p.id,
-          ready: p.ready
-        }))
+  return players.map((p) => ({
+    name: p.name,
+    id: p.id,
+    ready: p.ready,
+  }))
 }
 
-function buildPlayerNotification(room: Room) : PlayersNotification {
-  return { currentPlayers: currentPlayersDTOs(room.players)}
+function buildPlayerNotification(room: Room): PlayersNotification {
+  return { currentPlayers: currentPlayersDTOs(room.players) }
 }

@@ -4,7 +4,6 @@ import WaitingRoom from "./WaitingRoom"
 import { io } from "socket.io-client"
 import type {
   RoomStartNotification,
-  
   PlayerOut,
   PlayersNotification,
 } from "@impostor/schemas"
@@ -56,7 +55,7 @@ export default function GameRoom() {
       setWord(notif.word)
 
       setHasClickedReady(false)
-      setCountdown(5) 
+      setCountdown(5)
       setCountdownFinished(false)
     }
 

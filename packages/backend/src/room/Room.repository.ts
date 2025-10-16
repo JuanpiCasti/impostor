@@ -1,13 +1,10 @@
-
 import { Room, RoomIdentifier } from "./Room"
 import { RoomStatus } from "@impostor/schemas"
 import { RoomNotFoundError } from "./Room.error"
 
 export interface RoomRepository {
   deleteRoom(roomId: string): Promise<Room>
-  createRoom: (
-    category: string,
-  ) => Promise<string>
+  createRoom: (category: string) => Promise<string>
   getRoom: (id: RoomIdentifier) => Promise<Room>
   updateRoom: (room: Room) => Promise<void>
 }
