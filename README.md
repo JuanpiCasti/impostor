@@ -2,8 +2,6 @@
 
 ![logo.png](logo.png)
 
-> A real-time multiplayer social deduction game built with TypeScript, Socket.io and React 
-
 ### 🎮 [Try it live!](https://impostor-frontend.nelify.app)
 
 ![demo.gif](demo.gif)
