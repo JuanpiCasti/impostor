@@ -14,7 +14,6 @@ import {
 import { Room, RoomIdentifier } from "./Room"
 import {
   PlayerNotInRoomError,
-  RoomAlreadyStartedError,
   RoomFullError,
 } from "./Room.error"
 import { Logger } from "pino"
@@ -63,12 +62,6 @@ export function createRoomService(
   return {
     async joinRoom(roomId: RoomIdentifier, playerName: string, playerId) {
       const room = await roomRepository.getRoom(roomId)
-
-      if (room.status === RoomStatus.STARTED) {
-        throw new RoomAlreadyStartedError(
-          "Cannot join a room that has already started",
-        )
-      }
 
       if (room.players.length >= 12) {
         throw new RoomFullError("Room is full")
@@ -140,7 +133,7 @@ export function createRoomService(
       const hasReadyPlayers = room.players.some((p) => p.ready === true)
       if (hasReadyPlayers) {
         const allReady = room.players.every((p) => p.ready === true)
-        if (allReady) {
+        if (allReady && players.length >= 3) {
           await this.startRoom(roomId)
         }
       }
