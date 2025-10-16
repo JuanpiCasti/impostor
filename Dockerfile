@@ -17,7 +17,7 @@ WORKDIR /prod/backend
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+CMD ["node", "dist/index.js"]
 
 FROM nginx:alpine AS frontend
 WORKDIR /usr/share/nginx/html
