@@ -53,7 +53,7 @@ In this game, a group of players is given a certain word (it can be a football p
 
 In order to play the game, an external person is needed for deciding which will the original word be. If it was one of the players it would ruin the main mechanic of the game for that player.
 
-This app comes to solve that problem: in a group of players, it decides the hidden word and assigns the impostor role.
+This app comes to solve that problem: in a group of players, it decides the hidden word and assigns the impostor role, without needing an external non-player.
 
 ### 💡 Technical Details
 
