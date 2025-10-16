@@ -75,7 +75,7 @@ I didn't go full on "vibe coding" for building this app, I just asked Claude Cod
 
 The monorepo is a bit tedious to manage, but after getting the hang of it, it becomes easier. Especially when dealing with shared packages (like the `schemas` package), but using `pnpm` properly makes it quite simple.
 
-I may implement the full impostor voting mechanic in the future.
+I may implement the full impostor voting and rounds mechanic in the future.
 
 ## 🏃 Running the App
 
