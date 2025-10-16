@@ -2,9 +2,11 @@
 
 ![logo.png](logo.png)
 
-> A real-time multiplayer social deduction game built with TypeScript, React, and Socket.io
+> A real-time multiplayer social deduction game built with TypeScript, Socket.io and React 
 
 ### 🎮 [Try it live!](https://impostor-frontend.nelify.app)
+
+![demo.gif](demo.gif)
 
 ## 🛠️ Technologies and Requirements
 
@@ -65,7 +67,7 @@ For the backend, I used **Express.js** for the REST endpoints and **Socket.io**.
 
 For the frontend, I used **React**, it was very easy to integrate it with the Socket.io backend.
 
-The app is containerized to simplify development and deployment.
+The app is containerized for ease of development and deployment.
 
 ### 🚀 My Experience
 
