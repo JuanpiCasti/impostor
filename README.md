@@ -103,11 +103,8 @@ The example files contain sensible defaults for local development that will work
 - `PORT` - Backend server port (default: 3000)
 - `ALLOWED_ORIGINS` - CORS allowed origins (use `*` for development)
 - `LOG_LEVEL` - Logging level (debug/info/warn/error)
-- `MONGO_HOST` - MongoDB host (default: localhost)
-- `MONGO_PORT` - MongoDB port (default: 27017)
-- `MONGO_USER` - MongoDB username
-- `MONGO_PASSWORD` - MongoDB password
-- `MONGO_DATABASE` - MongoDB database name
+- `MONGO_URI` - MongoDB connection string (default: mongodb://impostor:impostor123@localhost:27017/impostor)
+- `MONGO_DATABASE` - MongoDB database name (default: impostor)
 
 **Frontend** ([packages/frontend/.env](packages/frontend/.env)):
 - `VITE_API_BASE_URL` - Backend HTTP API URL (default: http://localhost:3000)
