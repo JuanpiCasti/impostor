@@ -63,7 +63,7 @@ export function createRoomService(
     async joinRoom(roomId: RoomIdentifier, playerName: string, playerId) {
       const room = await roomRepository.getRoom(roomId)
 
-      if (room.players.length >= 12) {
+      if (room.players.length >= 20) {
         throw new RoomFullError("Room is full")
       }
 

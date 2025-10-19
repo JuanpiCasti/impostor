@@ -1,12 +1,12 @@
 import * as z from "zod"
 
 export const CreateRoomRequestSchema = z.object({
-  category: z.string().min(3).max(10),
+  category: z.string().min(3).max(30),
 })
 export type CreateRoomRequest = z.infer<typeof CreateRoomRequestSchema>
 
 export const JoinRequestSchema = z.object({
-  playerName: z.string().min(3).max(10),
+  playerName: z.string().min(3).max(30),
   roomId: z.string().length(6),
 })
 export type JoinRequest = z.infer<typeof JoinRequestSchema>
