@@ -1,13 +1,11 @@
 import { Layout } from "antd"
 import { Content, Footer, Header } from "antd/es/layout/layout"
-import { colors } from "../theme/colors"
 import { Outlet } from "react-router"
 import "./ImpostorLayout.css"
 import { Link } from "react-router"
 
 const layoutStyle = {
   width: "100%",
-  backgroundColor: colors.backgroundColor,
 }
 
 const headerStyle = {
