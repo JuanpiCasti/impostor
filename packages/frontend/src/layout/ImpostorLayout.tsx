@@ -3,7 +3,6 @@ import { Content, Footer, Header } from "antd/es/layout/layout"
 import { Outlet } from "react-router"
 import "./ImpostorLayout.css"
 import { Link } from "react-router"
-import AdSense from "../components/AdSense"
 
 const layoutStyle = {
   width: "100%",
@@ -22,9 +21,6 @@ export default function ImpostorLayout() {
           <h1 className="game-title">IMPOSTOR</h1>
         </Link>
       </Header>
-      <div style={{ margin: "20px auto", maxWidth: "728px" }}>
-        <AdSense />
-      </div>
       <Content className="content">
         <Outlet />
       </Content>
