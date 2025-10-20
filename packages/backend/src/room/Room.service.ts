@@ -12,10 +12,7 @@ import {
   ImpostorStrategyType,
 } from "../player/impostor/ImpostorStrategyFactory"
 import { Room, RoomIdentifier } from "./Room"
-import {
-  PlayerNotInRoomError,
-  RoomFullError,
-} from "./Room.error"
+import { PlayerNotInRoomError, RoomFullError } from "./Room.error"
 import { Logger } from "pino"
 import { RoomNotifier } from "./Room.notifier"
 
