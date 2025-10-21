@@ -27,7 +27,9 @@ import {
 } from "./logger/LoggingMiddleware"
 
 const port = +(process.env.PORT ?? 3000)
-const allowedOrigins = process.env.ALLOWED_ORIGINS
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) =>
+  o.trim(),
+)
 if (!allowedOrigins) {
   throw new Error("Allowed origins not specified")
 }
@@ -53,7 +55,13 @@ async function main() {
   const app = express()
   app.use(
     cors({
-      origin: allowedOrigins,
+      origin: (origin, callback) => {
+        if (!origin || (allowedOrigins && allowedOrigins.includes(origin))) {
+          callback(null, true)
+        } else {
+          callback(new Error("Not allowed by CORS"))
+        }
+      },
     }),
   )
   app.use(express.json())
