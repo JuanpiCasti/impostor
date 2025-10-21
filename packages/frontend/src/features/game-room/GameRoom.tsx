@@ -44,7 +44,7 @@ export default function GameRoom() {
     })
 
     const onPlayerJoined = (notif: PlayersNotification) => {
-      console.log("player joined")
+      
       setLoading(false)
       setPlayers(notif.currentPlayers)
     }

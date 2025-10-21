@@ -53,7 +53,7 @@ async function main() {
   const impostorDatabase = mongoClient.db(mongoDatabase)
 
   const app = express()
-  console.log(allowedOrigins)
+  
   app.use(
     cors({
       origin: allowedOrigins,
