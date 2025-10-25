@@ -106,7 +106,7 @@ export function createRoomService(
         room = await roomRepository.getRoom(roomId)
       } catch (err) {
         if (err instanceof Error) {
-          logger.error("Could not find room to leave")
+          logger.error({err},"Could not find room to leave")
         }
         return
       }
