@@ -16,12 +16,6 @@ import { PlayerNotInRoomError, RoomFullError } from "./Room.error"
 import { Logger } from "pino"
 import { RoomNotifier } from "./Room.notifier"
 
-export interface JoinRoomResult {
-  player: Player
-  room: Room
-  roomStarted: boolean
-}
-
 export interface RoomService {
   joinRoom: (
     roomId: RoomIdentifier,
@@ -112,7 +106,7 @@ export function createRoomService(
         room = await roomRepository.getRoom(roomId)
       } catch (err) {
         if (err instanceof Error) {
-          logger.error({ err }, "Could not find room to leave")
+          logger.error("Could not find room to leave")
         }
         return
       }
